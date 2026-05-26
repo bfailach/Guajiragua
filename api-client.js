@@ -100,7 +100,8 @@
     try {
       // 1. Health check rápido
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 4000);
+      // 35s para dar tiempo al cold start de Render (free tier duerme tras 15 min)
+      const timer = setTimeout(() => ctrl.abort(), 35000);
       const health = await fetch(`${API_BASE}/api/health`, { signal: ctrl.signal });
       clearTimeout(timer);
       if (!health.ok) throw new Error('API no responde');
