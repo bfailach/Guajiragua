@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Modelo Estrella — DM_SOSTENIB_GUAJIRA</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 20px 36px;
+}
+
+h1 { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+.sub { font-size: 11px; color: #888; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 32px; }
+
+/* ── diagram canvas ── */
+.canvas {
+  position: relative;
+  width: 1060px;
+  height: 560px;
+}
+
+/* ── tables ── */
+.tbl {
+  position: absolute;
+  border-radius: 7px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,.14);
+  background: #fff;
+}
+
+/* positions */
+.t-top  { width: 228px; left: 416px; top: 0; }
+.t-left { width: 218px; left: 0;     top: 168px; }
+.t-fact { width: 268px; left: 396px; top: 192px; }
+.t-right{ width: 218px; left: 842px; top: 168px; }
+
+.tbl-head {
+  padding: 11px 14px;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: #fff; text-align: center;
+}
+.h-fact { background: #c97a2b; }
+.h-dim  { background: #2c5fa6; }
+
+.row {
+  display: flex; align-items: center;
+  border-bottom: 1px solid #eaeaea;
+  font-size: 12.5px;
+}
+.row:last-child { border-bottom: none; }
+.row.even { background: #f7f9ff; }
+.row.odd  { background: #fff; }
+.row.fact-even { background: #fff8f2; }
+.row.fact-odd  { background: #fff3e6; }
+.row.sep {
+  background: #ececec;
+  justify-content: center;
+  font-size: 10px; font-style: italic;
+  color: #aaa; letter-spacing: .09em; text-transform: uppercase;
+  padding: 3px 0;
+}
+
+.badge {
+  width: 38px; min-width: 38px;
+  text-align: center; font-weight: 700; font-size: 10.5px;
+  padding: 7px 0;
+  border-right: 1px solid #eaeaea;
+}
+.pk { color: #c97a2b; }
+.fk { color: #2c5fa6; }
+.m  { color: #bbb; }
+.col { padding: 7px 8px; flex: 1; color: #222; }
+.col.b { font-weight: 600; }
+.typ { padding: 7px 8px 7px 0; font-size: 11px; color: #aaa; white-space: nowrap; }
+
+/* ── SVG connector overlay ── */
+.conn-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1060px; height: 560px;
+  pointer-events: none;
+}
+
+/* ── legend ── */
+.legend {
+  margin-top: 24px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  padding: 13px 22px;
+  display: flex; gap: 28px; flex-wrap: wrap;
+  font-size: 12px; color: #444;
+  width: 1060px;
+}
+.li { display: flex; align-items: center; gap: 7px; }
+.sw { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
+.sw-f { background: #c97a2b; }
+.sw-d { background: #2c5fa6; }
+</style>
+</head>
+<body>
+
+<h1>Modelo Estrella — DM_SOSTENIB_GUAJIRA</h1>
+<p class="sub">Sistema BI Hidrogeológico · La Guajira · Metodología Kimball · 1 tabla de hechos · 3 dimensiones</p>
+
+<div class="canvas">
+
+  <!-- ══ SVG arrows (drawn first, behind tables) ══ -->
+  <svg class="conn-svg" viewBox="0 0 1060 560">
+    <defs>
+      <marker id="arr" markerWidth="10" markerHeight="7"
+              refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#2c5fa6"/>
+      </marker>
+      <marker id="one" markerWidth="8" markerHeight="12"
+              refX="1" refY="6" orient="auto">
+        <line x1="1" y1="1" x2="1" y2="11" stroke="#2c5fa6" stroke-width="2"/>
+      </marker>
+    </defs>
+
+    <!-- DIM_TIEMPO → FACT (vertical, bottom of DIM_TIEMPO to top of FACT) -->
+    <!-- DIM_TIEMPO bottom-center: x=416+114=530, y=192 (approx bottom of DIM_TIEMPO) -->
+    <!-- FACT top-center: x=396+134=530, y=192 -->
+    <line x1="530" y1="185" x2="530" y2="202"
+          stroke="#2c5fa6" stroke-width="2.2"
+          marker-start="url(#one)" marker-end="url(#arr)"/>
+    <text x="538" y="196" font-family="Segoe UI,sans-serif" font-size="11"
+          font-weight="700" fill="#2c5fa6">1:N</text>
+
+    <!-- DIM_MUNICIPIO → FACT (horizontal, right of DIM_MUNI to left of FACT) -->
+    <!-- DIM_MUNI right-center: x=218, y=168+half -->
+    <!-- FACT left-center: x=396, y=192+half -->
+    <line x1="218" y1="290" x2="406" y2="320"
+          stroke="#2c5fa6" stroke-width="2.2"
+          marker-start="url(#one)" marker-end="url(#arr)"/>
+    <text x="280" y="296" font-family="Segoe UI,sans-serif" font-size="11"
+          font-weight="700" fill="#2c5fa6">1:N</text>
+
+    <!-- DIM_PUNTO → FACT (horizontal, left of DIM_PUNTO to right of FACT) -->
+    <!-- DIM_PUNTO left-center: x=842, y=168+half -->
+    <!-- FACT right-center: x=664, y=192+half -->
+    <line x1="842" y1="285" x2="664" y2="315"
+          stroke="#2c5fa6" stroke-width="2.2"
+          marker-start="url(#one)" marker-end="url(#arr)"/>
+    <text x="730" y="290" font-family="Segoe UI,sans-serif" font-size="11"
+          font-weight="700" fill="#2c5fa6">1:N</text>
+  </svg>
+
+  <!-- ══ DIM_TIEMPO (top center) ══ -->
+  <div class="tbl t-top">
+    <div class="tbl-head h-dim">DIM_TIEMPO</div>
+    <div class="row odd" ><span class="badge pk">PK</span><span class="col b">id_tiempo</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">fecha</span></div>
+    <div class="row odd" ><span class="badge"></span><span class="col">anio</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">mes</span><span class="typ">1–12</span></div>
+    <div class="row odd" ><span class="badge"></span><span class="col">trimestre</span><span class="typ">Q1–Q4</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">temporada</span><span class="typ">Seca/Húm.</span></div>
+  </div>
+
+  <!-- ══ DIM_MUNICIPIO (left) ══ -->
+  <div class="tbl t-left">
+    <div class="tbl-head h-dim">DIM_MUNICIPIO</div>
+    <div class="row odd" ><span class="badge pk">PK</span><span class="col b">id_municipio</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">codigo_dane</span></div>
+    <div class="row odd" ><span class="badge"></span><span class="col">nombre_municipio</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">zona</span><span class="typ">Alta/Med/Baja</span></div>
+    <div class="row odd" ><span class="badge"></span><span class="col">activo</span><span class="typ">boolean</span></div>
+  </div>
+
+  <!-- ══ FACT_MEDICION (center) ══ -->
+  <div class="tbl t-fact">
+    <div class="tbl-head h-fact">FACT_MEDICION</div>
+    <div class="row fact-odd" ><span class="badge pk">PK</span><span class="col b">id_medicion</span></div>
+    <div class="row fact-even"><span class="badge fk">FK</span><span class="col">id_punto</span></div>
+    <div class="row fact-odd" ><span class="badge fk">FK</span><span class="col">id_municipio</span></div>
+    <div class="row fact-even"><span class="badge fk">FK</span><span class="col">id_tiempo</span></div>
+    <div class="row sep">— métricas —</div>
+    <div class="row fact-odd" ><span class="badge m">M</span><span class="col">ph</span><span class="typ">unidades pH</span></div>
+    <div class="row fact-even"><span class="badge m">M</span><span class="col">conductividad</span><span class="typ">µS/cm</span></div>
+    <div class="row fact-odd" ><span class="badge m">M</span><span class="col">salinidad</span><span class="typ">mS/cm</span></div>
+    <div class="row fact-even"><span class="badge m">M</span><span class="col">temperatura</span><span class="typ">°C</span></div>
+    <div class="row fact-odd" ><span class="badge m">M</span><span class="col">std_mg_l</span><span class="typ">mg/L</span></div>
+    <div class="row fact-even"><span class="badge m">M</span><span class="col">profundidad_m</span><span class="typ">m</span></div>
+    <div class="row fact-odd" ><span class="badge m">M</span><span class="col">estado</span><span class="typ">Apta/Alert/Crít</span></div>
+  </div>
+
+  <!-- ══ DIM_PUNTO (right) ══ -->
+  <div class="tbl t-right">
+    <div class="tbl-head h-dim">DIM_PUNTO</div>
+    <div class="row odd" ><span class="badge pk">PK</span><span class="col b">id_punto</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">codigo_punto</span></div>
+    <div class="row odd" ><span class="badge"></span><span class="col">tipo</span><span class="typ">Pozo/Mant…</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">uso</span><span class="typ">Consumo/Rieg…</span></div>
+    <div class="row odd" ><span class="badge"></span><span class="col">latitud</span></div>
+    <div class="row even"><span class="badge"></span><span class="col">longitud</span></div>
+  </div>
+
+</div><!-- /canvas -->
+
+<!-- ══ legend ══ -->
+<div class="legend">
+  <div class="li"><div class="sw sw-f"></div><b>FACT</b> — Tabla de hechos (métricas medibles)</div>
+  <div class="li"><div class="sw sw-d"></div><b>DIM</b> — Tabla de dimensiones (contexto descriptivo)</div>
+  <div class="li"><b style="color:#c97a2b">PK</b> — Llave primaria</div>
+  <div class="li"><b style="color:#2c5fa6">FK</b> — Llave foránea</div>
+  <div class="li"><b style="color:#bbb">M</b> — Métrica / medida</div>
+  <div class="li"><b>→ 1:N</b> — Relación uno a muchos</div>
+</div>
+
+</body>
+</html>

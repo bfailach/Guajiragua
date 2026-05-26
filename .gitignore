@@ -1,0 +1,38 @@
+# Credenciales — NUNCA subir al repositorio
+api/.env
+
+# IDE / Claude Code
+.claude/
+
+# Documentos académicos (no son código)
+*.docx
+*.pptx
+*.xlsx
+
+# Archivos de subida temporales
+uploads/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Logs
+*.log
+api/uvicorn.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (si se usa para generar documentos)
+node_modules/

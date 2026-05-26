@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: guajiragua-api
+    runtime: python
+    rootDir: api
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false          # se ingresa manualmente en el dashboard de Render
+      - key: SUPABASE_KEY
+        sync: false          # se ingresa manualmente en el dashboard de Render
