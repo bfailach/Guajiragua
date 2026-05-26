@@ -37,6 +37,7 @@ app.add_middleware(
         "http://localhost:3001",
         "http://localhost:3000",
         "http://127.0.0.1:3001",
+        "https://majestic-biscuit-1790f6.netlify.app",
     ],
     allow_origin_regex  = r"https://.*\.netlify\.app",
     allow_credentials   = True,
