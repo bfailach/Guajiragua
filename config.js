@@ -15,6 +15,6 @@
     // ← Reemplaza esta URL con la que te dé Render al crear el servicio
     apiBase: isLocal
       ? 'http://localhost:8000'
-      : 'https://guajiragua-api.onrender.com',
+      : 'https://guajiragua.onrender.com',
   };
 })();
