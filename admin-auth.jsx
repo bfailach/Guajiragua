@@ -1,4 +1,4 @@
-// Inicio de sesión administrativo — protege la página de Administración
+// Inicio de sesión administrativo — protege el panel institucional (#/panel)
 //
 // La validación real ocurre en el servidor (/api/auth/login y require_admin).
 // Este componente solo decide qué mostrar según haya o no una sesión válida.
@@ -30,7 +30,9 @@ function AdminLogin({ onDone }) {
 
   return (
     <>
-      <PageHead crumb="DWH · ADMINISTRACIÓN" title="Administración" />
+      <div className="app">
+      <PageHead crumb="GUAJIRAGUA · ACCESO INSTITUCIONAL" title="Panel institucional"
+                right={<a href="#/" style={{fontSize:12, color:'var(--text-2)'}}>← Volver al sitio público</a>} />
       <div style={{display:'flex', justifyContent:'center', padding:'32px 24px 48px'}}>
         <form className="card" onSubmit={submit} noValidate
               style={{width:'min(400px, 100%)', padding:0}}>
@@ -40,7 +42,8 @@ function AdminLogin({ onDone }) {
           </div>
           <div className="modal-body">
             <p style={{fontSize:12, color:'var(--text-2)', margin:'0 0 18px', lineHeight:1.5}}>
-              Inicie sesión para gestionar puntos de monitoreo y generar reportes.
+              Acceso para entidades y técnicos: datos fisicoquímicos completos, tendencias,
+              alertas, gestión de puntos de monitoreo y reportes.
             </p>
             {offline && (
               <p className="mono" style={{fontSize:10, color:'#b5403d', margin:'0 0 14px', lineHeight:1.5}}>
@@ -68,6 +71,7 @@ function AdminLogin({ onDone }) {
           </div>
         </form>
       </div>
+      </div>
     </>
   );
 }
@@ -79,8 +83,9 @@ function AdminSessionBar({ session }) {
     <div className="flex between center"
          style={{padding:'8px 24px', borderBottom:'1px solid var(--border)', background:'var(--surface)', gap:12, flexWrap:'wrap'}}>
       <span className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.08em'}}>
-        SESIÓN · {session.usuario} · vence {vence}
+        PANEL INSTITUCIONAL · SESIÓN {session.usuario} · vence {vence}
       </span>
+      <a href="#/" style={{marginLeft:'auto', fontSize:11, color:'var(--text-2)'}}>Ver sitio público</a>
       <button className="btn-ghost" style={{padding:'5px 12px', fontSize:11}}
               onClick={() => {
                 window.GJ_AUTH.logout();

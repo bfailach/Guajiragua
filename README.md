@@ -2,29 +2,35 @@
 
 Sistema de inteligencia de negocios para el monitoreo de la calidad del agua subterránea en el departamento de La Guajira, Colombia.
 
-Integra 1.735 mediciones fisicoquímicas de pozos, aljibes y manantiales de 11 municipios en una bodega de datos con modelo estrella. Las expone mediante una API REST y las presenta en un tablero web con mapa, tendencias estacionales, alertas por umbral y generación de reportes.
+Integra 1.735 mediciones fisicoquímicas de pozos, aljibes y manantiales de 11 municipios en una bodega de datos con modelo estrella y las expone mediante una API REST. La aplicación web tiene dos partes:
+
+- **Vista pública**, para los habitantes de La Guajira. En lenguaje sencillo y pensada para celular, muestra el estado de las fuentes del municipio o de las más cercanas, explica qué hacer con el agua según su estado y recoge reportes de problemas.
+- **Panel institucional**, con inicio de sesión, para entidades y técnicos. Reúne los datos fisicoquímicos completos, tendencias estacionales, alertas por umbral, la gestión de puntos de monitoreo y la generación de reportes.
 
 Proyecto académico del programa de Ingeniería de Negocios de la Universidad Manuela Beltrán (UMB), desarrollado con la metodología de bodegas de datos de Kimball.
 
 - Aplicación: https://majestic-biscuit-1790f6.netlify.app
 - API: https://guajiragua.onrender.com (documentación interactiva en `/docs`)
 
-![Información fisicoquímica](docs/capturas/01-fisicoquimica.jpg)
+| | | | |
+|---|---|---|---|
+| ![Inicio](docs/capturas/publico-01-inicio.jpg) | ![Municipio](docs/capturas/publico-02-municipio.jpg) | ![Detalle de una fuente](docs/capturas/publico-03-fuente.jpg) | ![Recomendaciones](docs/capturas/publico-04-recomendaciones.jpg) |
 
 ## Contenido
 
 1. [Arquitectura](#arquitectura)
-2. [Datos](#datos)
-3. [Modelo dimensional](#modelo-dimensional)
-4. [Indicadores y reglas de clasificación](#indicadores-y-reglas-de-clasificación)
-5. [Estructura del repositorio](#estructura-del-repositorio)
-6. [Instalación local](#instalación-local)
-7. [Configuración](#configuración)
-8. [Despliegue](#despliegue)
-9. [API](#api)
-10. [Autenticación](#autenticación)
-11. [Limitaciones conocidas](#limitaciones-conocidas)
-12. [Capturas](#capturas)
+2. [Vista pública](#vista-pública)
+3. [Datos](#datos)
+4. [Modelo dimensional](#modelo-dimensional)
+5. [Indicadores y reglas de clasificación](#indicadores-y-reglas-de-clasificación)
+6. [Estructura del repositorio](#estructura-del-repositorio)
+7. [Instalación local](#instalación-local)
+8. [Configuración](#configuración)
+9. [Despliegue](#despliegue)
+10. [API](#api)
+11. [Autenticación](#autenticación)
+12. [Limitaciones conocidas](#limitaciones-conocidas)
+13. [Capturas](#capturas)
 
 ## Arquitectura
 
@@ -48,7 +54,34 @@ Proyecto académico del programa de Ingeniería de Negocios de la Universidad Ma
 | Frontend | React 18, Leaflet, SheetJS; sin paso de compilación (JSX transpilado en el navegador) | raíz del repositorio |
 | ETL de referencia | Python, pandas | `etl/etl_guajira.py` |
 
-Al iniciar, el frontend consulta `GET /api/health` y descarga las mediciones paginadas desde `GET /api/puntos`. Si la API no responde en 35 segundos (margen para el arranque en frío del plan gratuito de Render), usa la copia estática `real-data.js` e indica el modo en el pie de página (`SUPABASE · LIVE` u `OFFLINE · DATOS ESTÁTICOS`).
+La aplicación se muestra de inmediato con la copia estática `real-data.js`, sin pantalla de carga, para que funcione con conexiones lentas. En segundo plano el frontend consulta `GET /api/health` y descarga las mediciones paginadas desde `GET /api/puntos`. Si la API no responde en 35 segundos (margen para el arranque en frío del plan gratuito de Render), sigue con la copia estática. Si responde, reconstruye los datos con los de la base. El panel institucional indica el modo en el pie de página (`SUPABASE · LIVE` u `OFFLINE · DATOS ESTÁTICOS`).
+
+## Vista pública
+
+Es la página de inicio del sitio. Usa rutas con `#`, así que el botón Atrás del teléfono funciona y cada pantalla se puede compartir con su enlace.
+
+| Ruta | Pantalla |
+|------|----------|
+| `#/` | Inicio: acceso a fuentes cercanas, lista de municipios y significado de cada estado |
+| `#/municipio/URI` | Resumen del municipio en una frase y distribución por estado |
+| `#/fuentes?cerca=1` | Fuentes ordenadas por distancia desde la ubicación del teléfono, con mapa y filtros |
+| `#/fuentes?m=URI` | Fuentes de un municipio |
+| `#/fuente/GJ-00001` | Estado de una fuente, explicación en lenguaje sencillo, qué hacer y valores medidos |
+| `#/recomendaciones` | Qué hacer con el agua según su estado |
+| `#/reportar?f=GJ-00001` | Formulario para reportar un problema |
+| `#/panel` | Panel institucional (requiere inicio de sesión) |
+
+Criterios de diseño:
+
+- **Una fuente es un lugar de captación.** Se muestra su medición más reciente: 1.701 fuentes a partir de las 1.735 mediciones.
+- **Estados en lenguaje sencillo.** `Apta` se muestra como "Sin problemas detectados", `Precaución` como "Usar con cuidado" y `Crítico` como "No apta para beber". No se usa "potable", porque las mediciones no incluyen análisis microbiológico. Por eso la vista pública recomienda hervir el agua de cualquier fuente antes de beberla.
+- **El estado no depende solo del color.** Cada estado tiene además un icono, un texto y una forma propia en el mapa: círculo, cuadrado y rombo.
+- **Accesibilidad.** Textos de 17 px o más, áreas táctiles de al menos 44 px, contraste AA y navegación con teclado.
+- **La ubicación** se pide solo cuando la persona busca fuentes cercanas, y se guarda únicamente durante la sesión. Si la niega, se ofrece elegir el municipio.
+
+**Idiomas.** Todos los textos de la vista pública están en `PUB_TEXTOS` (`public.jsx`). La interfaz tiene selector de español y wayuunaiki. Las traducciones al wayuunaiki (`PUB_TEXTOS.guc`) deben hacerlas y revisarlas hablantes nativos. Mientras no existan, el selector muestra un aviso y el contenido sigue en español.
+
+**Reportes.** El formulario de reporte está completo, pero el envío está deshabilitado hasta definir la entidad que recibirá los reportes y su almacenamiento.
 
 ## Datos
 
@@ -128,6 +161,7 @@ Indicadores principales:
 ```
 .
 ├── index.html               Punto de entrada del frontend
+├── main.jsx                 Raíz de la app: vista pública o panel institucional según la ruta
 ├── config.js                URL de la API según el entorno (local o producción)
 ├── api-client.js            Carga de datos, modo sin conexión y sesión administrativa
 ├── real-data.js             Copia estática de las 1.735 mediciones
@@ -138,7 +172,9 @@ Indicadores principales:
 ├── page-tendencias.jsx      Página: análisis de tendencias
 ├── page-alertas.jsx         Página: centro de alertas
 ├── page-admin.jsx           Página: administración de puntos de monitoreo
-├── admin-auth.jsx           Inicio de sesión de la página de administración
+├── admin-auth.jsx           Inicio de sesión del panel institucional
+├── public.jsx               Vista pública: rutas, textos y pantallas
+├── public.css               Estilos de la vista pública
 ├── report-generator.jsx     Generador de reportes (PDF, CSV, XLSX)
 ├── styles.css
 ├── render.yaml              Definición del servicio en Render
@@ -249,7 +285,7 @@ Los endpoints de consulta son públicos y de solo lectura.
 
 ## Autenticación
 
-La página de administración, que incluye el generador de reportes, exige iniciar sesión.
+El panel institucional (`#/panel`) exige iniciar sesión. Incluye la información fisicoquímica, las tendencias, las alertas, la administración de puntos y el generador de reportes. Se entra desde el enlace "Acceso institucional", al pie de la vista pública.
 
 - Las credenciales se definen con variables de entorno. La contraseña se almacena solo como hash PBKDF2-SHA256 de 600.000 iteraciones con sal aleatoria.
 - `POST /api/auth/login` devuelve un token firmado con HMAC-SHA256 y fecha de vencimiento. El cliente lo envía en la cabecera `Authorization: Bearer`.
@@ -273,9 +309,13 @@ def crear_medicion(...):
 - **Reportes programados.** La programación y el envío por correo de reportes no están implementados. La generación inmediata en PDF, CSV y XLSX sí funciona.
 - **Alertas reconocidas.** El reconocimiento de alertas se pierde al recargar la página.
 - **Salinidades inconsistentes.** En cuatro mediciones (GJ-00165, GJ-00200, GJ-01612, GJ-01717) la salinidad es entre 2 y 10 veces mayor que la correspondiente a su conductividad. En GJ-00165 los sólidos disueltos sí corresponden a la conductividad; en las otras tres también son anómalos. Probablemente son errores de registro. Se conservan tal como están en la fuente y las cuatro quedan clasificadas como `Crítico` por salinidad > 4,0 mS/cm.
+- **Envío de reportes.** El formulario público de reportes no envía todavía; falta definir la entidad receptora y su almacenamiento.
+- **Wayuunaiki.** El selector de idioma está disponible, pero las traducciones están pendientes.
 - **Rendimiento del frontend.** React se carga en modo desarrollo y el JSX se transpila en el navegador. Para producción se recomienda un paso de compilación.
 
 ## Capturas
+
+Panel institucional:
 
 | | |
 |---|---|
