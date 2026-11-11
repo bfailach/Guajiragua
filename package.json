@@ -1,0 +1,16 @@
+{
+  "name": "guajiragua",
+  "private": true,
+  "description": "Frontend de Guajiragua: compilación para producción",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

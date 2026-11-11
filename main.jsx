@@ -66,7 +66,6 @@ function paginaDesdeHash() {
 
 function App() {
   const [page, setPageState] = useState(paginaDesdeHash);
-  const [ready, setReady] = useState(false);
 
   // Cambiar de sección = cambiar la dirección; el historial del navegador
   // registra cada paso, así que Atrás vuelve a la sección anterior.
@@ -87,21 +86,24 @@ function App() {
     window.scrollTo(0, 0);
   }, [page]);
 
-  // Retira el esqueleto de carga cuando la app ya está en pantalla
-  useEffect(() => { if (ready && window.GJ_HIDE_LOADER) window.GJ_HIDE_LOADER(); }, [ready]);
+  // La app se muestra de inmediato con la copia de datos incluida (real-data.js);
+  // no espera al servidor, que en el plan gratuito puede tardar hasta 35 s en despertar.
+  useEffect(() => { if (window.GJ_HIDE_LOADER) window.GJ_HIDE_LOADER(); }, []);
 
+  // Cuando el servidor responde, se actualizan los datos solo si cambiaron, para
+  // no reiniciar lo que la persona está viendo.
+  const [version, setVersion] = useState(0);
   useEffect(() => {
-    // Espera a que el API cargue los datos (o falle y use fallback)
+    const firma = pts => pts.length + '|' + pts.reduce((h, p) =>
+      (h * 31 + (p.id + p.estado + p.cond + p.ph + p.sal + p.temp + p.prof).length + (p.cond || 0)) % 1e9, 7);
+    const firmaInicial = firma(GJ.ALL_POINTS);
     (window.GJ_API_READY || Promise.resolve(false)).then(() => {
-      // Reconstruir window.GJ con los datos frescos del API si llegaron
-      if (window.GJ_API_LIVE && window.GJ_REAL_POINTS && window.buildGJ) {
+      if (window.GJ_API_LIVE && window.GJ_REAL_POINTS && window.buildGJ && firma(window.GJ_REAL_POINTS) !== firmaInicial) {
         window.buildGJ(window.GJ_REAL_POINTS);
+        setVersion(v => v + 1);
       }
-      setReady(true);
     });
   }, []);
-
-  if (!ready) return null; // El esqueleto de carga ya está visible mientras tanto
 
   let body = null;
   if (page === 'inicio')  body = <PageInicio setPage={setPage} />;
@@ -113,7 +115,7 @@ function App() {
   return (
     <div className="app" data-screen-label={'Guajiragua · ' + page}>
       <TopNav page={page} />
-      {body}
+      <React.Fragment key={version}>{body}</React.Fragment>
       <AppFooter />
       <ToastStack />
     </div>

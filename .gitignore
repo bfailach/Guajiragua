@@ -34,5 +34,5 @@ api/uvicorn.log
 Thumbs.db
 desktop.ini
 
-# Node (si se usa para generar documentos)
+# Node (dependencias y compilación del frontend: npm run build → dist/)
 node_modules/

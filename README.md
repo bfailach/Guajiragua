@@ -46,10 +46,12 @@ La bodega de datos sigue la metodología de modelado dimensional de Kimball.
 | Bodega de datos | PostgreSQL en Supabase | `api/schema.sql`, `api/create_functions.sql` |
 | Carga de datos | Python, cliente Supabase | `api/load_to_supabase.py`, `api/migraciones/` |
 | API | Python 3, FastAPI, Uvicorn | `api/` |
-| Frontend | React 18, Leaflet, SheetJS; sin paso de compilación (JSX transpilado en el navegador) | raíz del repositorio |
+| Frontend | React 18, Leaflet, SheetJS; compilado con esbuild para producción | raíz del repositorio (`build.mjs` genera `dist/`) |
 | ETL de referencia | Python, pandas | `etl/etl_guajira.py` |
 
-Mientras carga, la app muestra un esqueleto con la estructura de la página. Al iniciar, el frontend consulta `GET /api/health` y descarga las mediciones paginadas desde `GET /api/puntos`. Si la API no responde en 35 segundos (margen para el arranque en frío del plan gratuito de Render), usa la copia estática `real-data.js` e indica el modo en el pie de página (`SUPABASE · LIVE` u `OFFLINE · DATOS ESTÁTICOS`).
+Mientras se descargan los archivos, la página muestra un esqueleto con su estructura. La app aparece de inmediato con la copia de datos incluida (`real-data.js`) y no espera al servidor, que en el plan gratuito de Render puede tardar hasta 35 segundos en despertar. En segundo plano consulta `GET /api/health` y descarga las mediciones paginadas desde `GET /api/puntos`; si llegan y son distintas de la copia, actualiza los datos. El pie de página indica el origen (`SUPABASE · LIVE` u `OFFLINE · DATOS ESTÁTICOS`).
+
+**Compilación.** En producción el JSX llega ya compilado y minificado, con React en versión de producción, y SheetJS se descarga solo al generar un XLSX. La descarga inicial pasa de unos 1.300 KB a unos 140 KB comprimidos, y en un celular lento la app queda usable en menos de un segundo, frente a unos cinco antes.
 
 Cada sección tiene su propia dirección, así que el botón Atrás, recargar y compartir un enlace funcionan:
 
@@ -164,6 +166,9 @@ Indicadores principales:
 ├── report-generator.jsx     Generador de reportes (PDF, CSV, XLSX)
 ├── styles.css
 ├── render.yaml              Definición del servicio en Render
+├── netlify.toml             Compilación y publicación en Netlify
+├── build.mjs                Compilación del frontend para producción (npm run build → dist/)
+├── package.json             Herramientas de compilación (esbuild, React)
 ├── start-api.bat            Arranque local de la API (Windows)
 ├── start-frontend.bat       Arranque local del frontend (Windows)
 ├── api/
@@ -221,13 +226,23 @@ La API queda en `http://localhost:8000` y su documentación en `http://localhost
 
 ### 3. Frontend
 
-Desde la raíz del repositorio:
+**Desarrollo.** Desde la raíz del repositorio, sin instalar nada:
 
 ```bash
 python -m http.server 3001
 ```
 
-Abrir `http://localhost:3001`. En Windows, `start-api.bat` y `start-frontend.bat` hacen los mismos pasos.
+Abrir `http://localhost:3001`. En este modo el JSX se compila en el navegador, así que los cambios se ven al recargar. En Windows, `start-api.bat` y `start-frontend.bat` hacen los mismos pasos.
+
+**Versión de producción.** Requiere Node.js 18 o superior:
+
+```bash
+npm install
+npm run build                     # genera dist/
+python -m http.server 3001 -d dist
+```
+
+`build.mjs` toma el orden de los scripts de `index.html`; un archivo `.jsx` nuevo solo necesita agregarse ahí.
 
 ## Configuración
 
@@ -251,7 +266,7 @@ La URL de la API que usa el frontend se define en `config.js`: `http://localhost
 
 **API (Render).** `render.yaml` define el servicio web. Las variables `SUPABASE_URL`, `SUPABASE_KEY`, `ADMIN_USER` y `ADMIN_PASSWORD_HASH` se ingresan manualmente en el panel. `AUTH_SECRET` lo genera Render.
 
-**Frontend (Netlify).** Sitio estático publicado desde la raíz del repositorio, sin comando de compilación. Si el dominio cambia, hay que agregarlo a la lista de orígenes de `api/main.py` o a `FRONTEND_ORIGINS`.
+**Frontend (Netlify).** `netlify.toml` indica a Netlify que ejecute `npm ci && npm run build` y publique la carpeta `dist/`, con caché larga para los archivos con huella y sin caché para `index.html`. Esto aplica cuando el sitio está conectado al repositorio de GitHub. Si se publica arrastrando una carpeta, hay que ejecutar `npm run build` y subir `dist/`, no la raíz del repositorio. Si el dominio cambia, hay que agregarlo a la lista de orígenes de `api/main.py` o a `FRONTEND_ORIGINS`.
 
 ## API
 
@@ -294,7 +309,6 @@ def crear_medicion(...):
 - **Reportes.** El generador produce y descarga reportes en PDF, CSV y XLSX en el momento. No hay programación, envío por correo ni historial guardado en el servidor: la lista de reportes generados se limita a la sesión actual.
 - **Alertas reconocidas.** El reconocimiento de alertas se pierde al recargar la página.
 - **Salinidades inconsistentes.** En cuatro mediciones (GJ-00165, GJ-00200, GJ-01612, GJ-01717) la salinidad es entre 2 y 10 veces mayor que la correspondiente a su conductividad. En GJ-00165 los sólidos disueltos sí corresponden a la conductividad; en las otras tres también son anómalos. Probablemente son errores de registro. Se conservan tal como están en la fuente y las cuatro quedan clasificadas como `Crítico` por salinidad > 4,0 mS/cm.
-- **Rendimiento del frontend.** React se carga en modo desarrollo y el JSX se transpila en el navegador. Para producción se recomienda un paso de compilación.
 
 ## Capturas
 

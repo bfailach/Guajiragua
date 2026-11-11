@@ -218,7 +218,7 @@ function ReportGenerator() {
     const capturedVariables   = new Set(variables);
     const capturedSelectedType = { ...selectedType };
 
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         // 1. Filtrar puntos por municipio y período
         const range = getPeriodRange(capturedPeriodo);
@@ -266,8 +266,7 @@ function ReportGenerator() {
 
         } else if (capturedFormato === 'xlsx') {
           // ── XLSX real (SheetJS) ───────────────────────────────────────────
-          if (!window.XLSX) throw new Error('SheetJS no cargado — recarga la página');
-          const X = window.XLSX;
+          const X = await cargarXLSX();
 
           const dataSheet = pts.map(p => {
             const row = {
@@ -354,7 +353,7 @@ function ReportGenerator() {
         setGenerating('error');
         setTimeout(() => setGenerating(null), 3000);
       }
-    }, 1200);
+    }, 30);
   }
 
   // ── Filtros de recientes ────────────────────────────────────────────────────
@@ -678,5 +677,23 @@ function StatRow({ label, value }) {
   );
 }
 
+
+// SheetJS (≈ 900 KB) se descarga solo cuando se genera un XLSX
+let _xlsxPromesa = null;
+function cargarXLSX() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (!_xlsxPromesa) {
+    _xlsxPromesa = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
+      s.integrity = 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw';
+      s.crossOrigin = 'anonymous';
+      s.onload = () => (window.XLSX ? resolve(window.XLSX) : reject(new Error('SheetJS no disponible')));
+      s.onerror = () => { _xlsxPromesa = null; reject(new Error('No se pudo descargar SheetJS. Revisa la conexión e intenta de nuevo.')); };
+      document.head.appendChild(s);
+    });
+  }
+  return _xlsxPromesa;
+}
 
 window.ReportGenerator = ReportGenerator;
