@@ -1,4 +1,5 @@
 // Página de inicio — información para los habitantes de La Guajira
+// Se abre al entrar y desde el nombre GUAJIRAGUA de la barra superior.
 //
 // Explica en lenguaje sencillo el estado del agua por municipio y de las
 // fuentes cercanas, y qué hacer según el estado. Usa la misma regla de

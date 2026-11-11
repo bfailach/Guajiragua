@@ -31,7 +31,7 @@
       #gj-loader { position: fixed; inset: 0; z-index: 9999; background: #f6f6f6; overflow: hidden;
                    font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif; }
       #gj-loader .gjs-app { max-width: 1600px; margin: 0 auto; padding: 0 56px; }
-      #gj-loader .gjs-nav { display: grid; grid-template-columns: repeat(3, 1fr) auto repeat(2, 1fr); align-items: center;
+      #gj-loader .gjs-nav { display: grid; grid-template-columns: 1fr 1fr auto 1fr 1fr; align-items: center;
                             height: 84px; border-bottom: 1px solid #e2e2e2; margin: 0 -56px 32px; padding: 0 56px; gap: 16px; }
       #gj-loader .gjs-nav .gjs-b { margin: 0 auto; }
       #gj-loader .gjs-brand { font-weight: 600; letter-spacing: 0.18em; font-size: 14px; color: #0f0f0f; padding: 0 24px; }
@@ -65,7 +65,7 @@
     </style>
     <div class="gjs-app" aria-hidden="true">
       <div class="gjs-nav">
-        ${bar('48px', 10)}${bar('150px', 10, '', )}${bar('130px', 10)}
+        ${bar('150px', 10)}${bar('130px', 10)}
         <div class="gjs-brand">GUAJIRAGUA</div>
         ${bar('56px', 10)}${bar('110px', 10)}
       </div>

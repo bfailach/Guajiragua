@@ -5,7 +5,6 @@ const { useState, useMemo, useEffect, useRef } = React;
 // ── Top Navigation ───────────────────────────────────────────────
 function TopNav({ page, setPage }) {
   const left = [
-    { id: 'inicio',    label: 'Inicio' },
     { id: 'fisico',    label: 'Información fisicoquímica' },
     { id: 'tend',      label: 'Análisis de tendencias' },
   ];
@@ -22,11 +21,15 @@ function TopNav({ page, setPage }) {
           {n.label}
         </button>
       ))}
-      <div className="brand">
+      {/* El nombre lleva a la página de inicio */}
+      <button className={'brand' + (page === 'inicio' ? ' active' : '')}
+              onClick={() => setPage('inicio')}
+              aria-label="Guajiragua, inicio"
+              aria-current={page === 'inicio' ? 'page' : undefined}>
         <div className="brand-mark">
           <span className="brand-name">GUAJIRAGUA</span>
         </div>
-      </div>
+      </button>
       {right.map(n => (
         <button key={n.id}
           className={'nav-item' + (page === n.id ? ' active' : '')}

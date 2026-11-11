@@ -53,7 +53,7 @@ Mientras carga, la app muestra un esqueleto con la estructura de la página. Al 
 
 ## Página de inicio
 
-Es la primera pestaña. Está dirigida a los habitantes de La Guajira y usa el mismo diseño que el resto de la aplicación:
+Es la página que se abre al entrar, y se vuelve a ella tocando el nombre GUAJIRAGUA en la barra superior. Está dirigida a los habitantes de La Guajira y usa el mismo diseño que el resto de la aplicación:
 
 - **Consulta por municipio.** Un resumen en una frase ("4 de cada 10 fuentes de Uribia no son aptas para beber") y la distribución por estado. Para cada fuente se usa su medición más reciente: 1.701 fuentes a partir de las 1.735 mediciones.
 - **Fuentes cerca de ti.** Con la ubicación del teléfono, lista las fuentes más cercanas y su estado. El detalle de cada una explica en lenguaje sencillo por qué tiene ese estado, qué hacer con el agua y los valores medidos. La ubicación se usa solo en el navegador y no se envía a ningún servidor.
