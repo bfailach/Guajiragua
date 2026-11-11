@@ -1,7 +1,7 @@
 # Credenciales — NUNCA subir al repositorio
 api/.env
 
-# IDE / Claude Code
+# Configuración local de editores y herramientas
 .claude/
 
 # Documentos académicos (no son código)
