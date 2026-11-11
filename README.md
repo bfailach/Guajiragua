@@ -12,9 +12,9 @@ Proyecto académico del programa de Ingeniería de Negocios de la Universidad Ma
 - Aplicación: https://majestic-biscuit-1790f6.netlify.app
 - API: https://guajiragua.onrender.com (documentación interactiva en `/docs`)
 
-| | | | | |
-|---|---|---|---|---|
-| ![Inicio](docs/capturas/publico-01-inicio.jpg) | ![Municipio](docs/capturas/publico-02-municipio.jpg) | ![Detalle de una fuente](docs/capturas/publico-03-fuente.jpg) | ![Recomendaciones](docs/capturas/publico-04-recomendaciones.jpg) | ![Fuentes cercanas, modo oscuro](docs/capturas/publico-05-cerca-oscuro.jpg) |
+| | | | |
+|---|---|---|---|
+| ![Inicio](docs/capturas/publico-01-inicio.jpg) | ![Municipio](docs/capturas/publico-02-municipio.jpg) | ![Detalle de una fuente](docs/capturas/publico-03-fuente.jpg) | ![Recomendaciones](docs/capturas/publico-04-recomendaciones.jpg) |
 
 ## Contenido
 
@@ -75,9 +75,9 @@ Criterios de diseño:
 
 - **Una fuente es un lugar de captación.** Se muestra su medición más reciente: 1.701 fuentes a partir de las 1.735 mediciones.
 - **Estados en lenguaje sencillo.** `Apta` se muestra como "Sin problemas detectados", `Precaución` como "Usar con cuidado" y `Crítico` como "No apta para beber". No se usa "potable", porque las mediciones no incluyen análisis microbiológico. Por eso la vista pública recomienda hervir el agua de cualquier fuente antes de beberla.
-- **Lenguaje visual de app nativa.** Títulos grandes que pasan a la barra superior al desplazar, barras translúcidas, barra de pestañas (Inicio, Cerca, Qué hacer, Reportar), listas agrupadas y carátulas con degradado por zona (Alta, Media y Baja Guajira). Usa la fuente del sistema del teléfono (Inter como respaldo) y se adapta al modo claro u oscuro configurado en él.
+- **Detalles al estilo iOS.** Barra superior translúcida, selector de idioma como control segmentado, sombras suaves, respuesta visual al tocar y transiciones cortas entre pantallas, desactivadas si el teléfono pide reducir el movimiento.
 - **El estado no depende solo del color.** Cada estado tiene además un icono, un texto y una forma propia en el mapa: círculo, cuadrado y rombo.
-- **Accesibilidad.** Texto principal de 17 px, áreas táctiles de al menos 44 px, contraste AA en modo claro y oscuro, navegación con teclado y respeto a la preferencia de reducir movimiento.
+- **Accesibilidad.** Texto principal de 17 px, áreas táctiles de al menos 44 px, contraste AA y navegación con teclado.
 - **La ubicación** se pide solo cuando la persona busca fuentes cercanas, y se guarda únicamente durante la sesión. Si la niega, se ofrece elegir el municipio.
 
 **Idiomas.** Todos los textos de la vista pública están en `PUB_TEXTOS` (`public.jsx`). La interfaz tiene selector de español y wayuunaiki. Las traducciones al wayuunaiki (`PUB_TEXTOS.guc`) deben hacerlas y revisarlas hablantes nativos. Mientras no existan, el selector muestra un aviso y el contenido sigue en español.

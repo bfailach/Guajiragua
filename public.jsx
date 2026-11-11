@@ -116,8 +116,6 @@ const PUB_TEXTOS = {
     recGeneralTitulo: 'Para cualquier fuente',
     recGeneral1: 'Estas mediciones revisan la sal y la acidez, no los microbios. Antes de beber, hierve el agua: déjala hervir con burbujas durante 1 minuto.',
     recGeneral2: 'Guárdala en recipientes limpios y tapados.',
-    recGeneralH: 'Antes de beber, hierve el agua',
-    recGeneralP: 'Estas mediciones revisan la sal y la acidez, no los microbios. Déjala hervir con burbujas durante 1 minuto.',
     recBeber: 'Beber',
     recCocinar: 'Cocinar',
     recBeberCocinar: 'Beber y cocinar',
@@ -149,26 +147,6 @@ const PUB_TEXTOS = {
     opcional: '(opcional)',
     repEnviar: 'Enviar reporte',
     repNoDisponible: 'El envío de reportes todavía no está habilitado. Se activará cuando se defina la entidad que los recibe.',
-
-    tabInicio: 'Inicio',
-    tabCerca: 'Cerca',
-    tabQueHacer: 'Qué hacer',
-    tabReportar: 'Reportar',
-    navegacion: 'Navegación principal',
-    destacadoEyebrow: 'Cerca de ti',
-    destacadoTitulo: 'Encuentra la fuente más cercana',
-    municipios: 'Municipios',
-    zona_Alta: 'Alta Guajira',
-    zona_Media: 'Media Guajira',
-    zona_Baja: 'Baja Guajira',
-    masInfo: 'Más',
-    verEnMapa: 'Ver mapa',
-    queHacerCorto: 'Qué hacer',
-    porEstado: 'Por estado',
-    resumenMuni: '{n} fuentes · {fecha}',
-    valoresMedidos: 'Valores medidos',
-    noApta: 'No apta',
-
   },
   guc: {},
 };
@@ -300,117 +278,61 @@ function volverAtras(e) {
   if (window.history.length > 1) { e.preventDefault(); window.history.back(); }
 }
 
-
-// ── Iconos (trazos propios) ────────────────────────────────────────────────
-const Svg = ({ size = 24, color = 'currentColor', sw = 2, children, style, fill = 'none', className }) => (
-  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={sw}
+// ── Iconos ─────────────────────────────────────────────────────────────────
+const Svg = ({ size = 24, color = 'currentColor', children, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"
        strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0, ...style }}>
     {children}
   </svg>
 );
-const IcoGota  = p => <Svg {...p}><path d="M12 3c-3.5 4.2-6 7.6-6 10.6a6 6 0 0 0 12 0C18 10.6 15.5 7.2 12 3z"/></Svg>;
-const IcoPin   = p => <Svg {...p}><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></Svg>;
-const IcoCasa  = p => <Svg {...p}><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></Svg>;
-const IcoGuia  = p => <Svg {...p}><path d="M12 3c-3 3.6-5.2 6.5-5.2 9.1a5.2 5.2 0 0 0 10.4 0C17.2 9.5 15 6.6 12 3z"/><path d="M9.6 12.6l1.7 1.6 3.2-3.4"/></Svg>;
-const IcoBand  = p => <Svg {...p}><path d="M5 21V4h11l-1.5 4L16 12H5"/></Svg>;
-const IcoChev  = p => <Svg size={14} sw={2.6} {...p}><path d="M9 5l7 7-7 7"/></Svg>;
-const IcoAtras = p => <Svg size={22} sw={2.4} {...p}><path d="M15 5l-7 7 7 7"/></Svg>;
-const IcoTick  = p => <Svg sw={2.6} {...p}><path d="M5 12.5l4.5 4.5L19 7.5"/></Svg>;
-const IcoBien  = p => <Svg {...p}><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.5L16 9.5"/></Svg>;
-const IcoCuid  = p => <Svg {...p}><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></Svg>;
-const IcoMal   = p => <Svg {...p}><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></Svg>;
-const IcoVaso  = p => <Svg {...p}><path d="M6 3h12l-1.5 17a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1z"/><path d="M6.5 8h11"/></Svg>;
-const IcoTete  = p => <Svg {...p}><path d="M9 3v3a3 3 0 0 0 6 0V3"/><path d="M8 9h8l-1 11a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/></Svg>;
-const IcoLava  = p => <Svg {...p}><path d="M4 12h16"/><path d="M6 12v5a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3v-5"/><path d="M9 8c0-1.5 1-2 1-3.5M13 8c0-1.5 1-2 1-3.5"/></Svg>;
-const IcoCruz  = p => <Svg {...p}><path d="M12 5v14M5 12h14"/></Svg>;
+const IcoGota = p => <Svg {...p}><path d="M12 3c-3.5 4.2-6 7.6-6 10.6a6 6 0 0 0 12 0C18 10.6 15.5 7.2 12 3z"/></Svg>;
+const IcoPin  = p => <Svg {...p}><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></Svg>;
+const IcoBien = p => <Svg color="#1e6b44" {...p}><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.5L16 9.5"/></Svg>;
+const IcoCuid = p => <Svg color="#8a5300" {...p}><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></Svg>;
+const IcoMal  = p => <Svg color="#a3231a" {...p}><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></Svg>;
+const IcoBand = p => <Svg {...p}><path d="M5 21V4h11l-1.5 4L16 12H5"/></Svg>;
+const IcoVaso = p => <Svg color="#0b5566" {...p}><path d="M6 3h12l-1.5 17a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1z"/><path d="M6.5 8h11"/></Svg>;
+const IcoTete = p => <Svg color="#0b5566" {...p}><path d="M9 3v3a3 3 0 0 0 6 0V3"/><path d="M8 9h8l-1 11a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/></Svg>;
+const IcoLava = p => <Svg color="#0b5566" {...p}><path d="M4 12h16"/><path d="M6 12v5a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3v-5"/><path d="M9 8c0-1.5 1-2 1-3.5M13 8c0-1.5 1-2 1-3.5"/></Svg>;
+const IcoCruz = p => <Svg color="#0b5566" {...p}><path d="M12 5v14M5 12h14"/></Svg>;
 
-function IcoEstado({ estado, size, color }) {
-  if (estado === 'Crítico') return <IcoMal size={size} color={color} />;
-  if (estado === 'Precaución') return <IcoCuid size={size} color={color} />;
-  return <IcoBien size={size} color={color} />;
-}
-
-const GotaArte = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2c-4 4.8-7 8.8-7 12.2a7 7 0 0 0 14 0C19 10.8 16 6.8 12 2z"/></svg>
-);
-
-// Carátula de un municipio: degradado según la zona (Alta, Media, Baja Guajira)
-function Caratula({ muni, label, className = '' }) {
-  const idx = GJ.MUNICIPIOS.filter(m => m.zona === muni.zona).findIndex(m => m.id === muni.id);
-  return (
-    <div className={`pub-art pub-art-zona-${muni.zona} pub-art-hue-${idx % 4} ${className}`}>
-      <GotaArte className="pub-art-drop" />
-      {label && <div className="pub-art-label">{label}</div>}
-    </div>
-  );
+function IcoEstado({ estado, size }) {
+  if (estado === 'Crítico') return <IcoMal size={size} />;
+  if (estado === 'Precaución') return <IcoCuid size={size} />;
+  return <IcoBien size={size} />;
 }
 
 // ── Estructura común ───────────────────────────────────────────────────────
-function useScrolled(umbral = 36) {
-  const [s, setS] = useState(false);
-  useEffect(() => {
-    const on = () => setS(window.scrollY > umbral);
-    on();
-    window.addEventListener('scroll', on, { passive: true });
-    return () => window.removeEventListener('scroll', on);
-  }, [umbral]);
-  return s;
-}
-
-function PubNav({ titulo, atras, idioma, setIdioma }) {
-  const scrolled = useScrolled();
+function PubHeader({ idioma, setIdioma }) {
   return (
-    <header className={'pub-nav' + (scrolled ? ' is-scrolled' : '')}>
-      <div className="pub-nav-left">
-        {atras
-          ? <a className="pub-navbtn" href={atras.href} onClick={atras.historial ? volverAtras : undefined}><IcoAtras />{atras.label}</a>
-          : <a className="pub-brand" href="#/"><span className="pub-brand-mark"><IcoGota size={16} color="#fff" sw={2.4} /></span>{pubT('marca')}</a>}
-      </div>
-      <div className="pub-nav-title" aria-hidden="true">{titulo}</div>
-      <div className="pub-nav-right">
-        <div className="pub-lang" role="group" aria-label={pubT('idioma')}>
-          <button aria-pressed={idioma === 'es'} onClick={() => setIdioma('es')}>{pubT('idiomaEs')}</button>
-          <button aria-pressed={idioma === 'guc'} onClick={() => setIdioma('guc')}>{pubT('idiomaGuc')}</button>
-        </div>
+    <header className="pub-header">
+      <a className="pub-brand" href="#/"><IcoGota size={22} color="#0b5566" />{pubT('marca')}</a>
+      <div className="pub-lang" role="group" aria-label={pubT('idioma')}>
+        <button aria-pressed={idioma === 'es'} onClick={() => setIdioma('es')}>{pubT('idiomaEs')}</button>
+        <button aria-pressed={idioma === 'guc'} onClick={() => setIdioma('guc')}>{pubT('idiomaGuc')}</button>
       </div>
     </header>
   );
 }
 
-function PubTabBar({ activa }) {
-  const tabs = [
-    ['inicio', '#/', IcoCasa, 'tabInicio'],
-    ['cerca', '#/fuentes?cerca=1', IcoPin, 'tabCerca'],
-    ['guia', '#/recomendaciones', IcoGuia, 'tabQueHacer'],
-    ['reportar', '#/reportar', IcoBand, 'tabReportar'],
-  ];
-  return (
-    <nav className="pub-tabbar" aria-label={pubT('navegacion')}>
-      {tabs.map(([id, href, Ico, k]) => (
-        <a key={id} className="pub-tab" href={href} aria-current={activa === id ? 'page' : undefined}>
-          <Ico sw={activa === id ? 2.3 : 1.8} />{pubT(k)}
-        </a>
-      ))}
-    </nav>
-  );
-}
-
-function PubPie() {
+function PubFooter() {
   const fecha = mesAnio(ultimaFecha(pubFuentes().list));
   return (
-    <footer className="pub-stack-sm" style={{ paddingTop: 8 }}>
-      <p className="pub-foot">{pubT('pieDatos', { fecha })}</p>
-      <a href="#/panel" style={{ fontSize: 15, minHeight: 44, display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start' }}>{pubT('accesoInstitucional')}</a>
+    <footer className="pub-footer">
+      <div className="pub-footer-in">
+        <span>{pubT('pieDatos', { fecha })}</span>
+        <a href="#/panel">{pubT('accesoInstitucional')}</a>
+      </div>
     </footer>
   );
 }
 
-// Miniatura cuadrada con la marca de estado (filas tipo pista)
-function MiniEstado({ estado, size = 48 }) {
+function EstadoLeyenda({ estado }) {
   return (
-    <span className={'pub-thumb pub-soft-' + PUB_CLASE[estado]} style={{ width: size, height: size }}>
-      <span className={'pub-mark pub-mark-' + PUB_CLASE[estado]} style={{ width: 16, height: 16 }} />
-    </span>
+    <div className={'pub-legend pub-st-' + PUB_CLASE[estado]}>
+      <IcoEstado estado={estado} size={26} />
+      <div><b>{pubT('estado_' + estado)}</b><span>{pubT('estadoDesc_' + estado)}</span></div>
+    </div>
   );
 }
 
@@ -419,78 +341,46 @@ function PubInicio() {
   const { list } = pubFuentes();
   const conteo = {};
   list.forEach(p => { conteo[p.muni] = (conteo[p.muni] || 0) + 1; });
-  const orden = { Alta: 0, Media: 1, Baja: 2 };
   const munis = GJ.MUNICIPIOS.filter(m => conteo[m.id])
-    .slice().sort((a, b) => orden[a.zona] - orden[b.zona] || a.name.localeCompare(b.name, 'es'));
+    .slice().sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
   return (
     <>
-      <h1 className="pub-largetitle">{pubT('inicioTitulo')}</h1>
-
-      <section className="pub-feature">
-        <GotaArte className="pub-feature-drop" />
-        <span className="pub-eyebrow">{pubT('destacadoEyebrow')}</span>
-        <h2>{pubT('destacadoTitulo')}</h2>
-        <p>{pubT('inicioIntro')}</p>
-        <a className="pub-btn" href="#/fuentes?cerca=1"><IcoPin size={20} />{pubT('verCerca')}</a>
+      <section className="pub-stack" style={{ paddingTop: 10 }}>
+        <h1 className="pub-h1">{pubT('inicioTitulo')}</h1>
+        <p className="pub-lead">{pubT('inicioIntro')}</p>
+        <a className="pub-btn" href="#/fuentes?cerca=1"><IcoPin size={22} />{pubT('verCerca')}</a>
       </section>
 
       <section className="pub-stack">
-        <div className="pub-section-head"><h2 className="pub-section-title">{pubT('eligeMunicipio')}</h2></div>
-        <div className="pub-shelf" role="list">
+        <h2 className="pub-h2">{pubT('eligeMunicipio')}</h2>
+        <div className="pub-muni-grid">
           {munis.map(m => (
-            <a key={m.id} role="listitem" className="pub-shelf-item" href={'#/municipio/' + m.id}>
-              <Caratula muni={m} label={m.name} />
-              <span className="pub-shelf-meta">
-                <b>{pubT('zona_' + m.zona)}</b>
-                <span>{pubT('nFuentes', { n: conteo[m.id].toLocaleString('es-CO') })}</span>
-              </span>
+            <a key={m.id} className="pub-muni" href={'#/municipio/' + m.id}>
+              <b>{m.name}</b><span>{pubT('nFuentes', { n: conteo[m.id].toLocaleString('es-CO') })}</span>
             </a>
           ))}
         </div>
       </section>
 
       <section className="pub-stack">
-        <div className="pub-section-head">
-          <h2 className="pub-section-title">{pubT('queSignifica')}</h2>
-          <a className="pub-section-link" href="#/recomendaciones">{pubT('masInfo')}</a>
+        <h2 className="pub-h2">{pubT('queSignifica')}</h2>
+        <div className="pub-stack-sm" style={{ gap: 8 }}>
+          {['Apta', 'Precaución', 'Crítico'].map(e => <EstadoLeyenda key={e} estado={e} />)}
         </div>
-        <div className="pub-group">
-          {['Apta', 'Precaución', 'Crítico'].map(e => (
-            <div key={e} className="pub-row" style={{ '--sep-inset': '58px' }}>
-              <span className={'pub-row-icon pub-bg-' + PUB_CLASE[e]}><IcoEstado estado={e} size={20} color="#fff" /></span>
-              <span className="pub-row-main">
-                <span className="pub-row-title" style={{ fontWeight: 600 }}>{pubT('estado_' + e)}</span>
-                <span className="pub-row-sub">{pubT('estadoDesc_' + e)}</span>
-              </span>
-            </div>
-          ))}
-        </div>
+        <a className="pub-link-strong" href="#/recomendaciones">{pubT('queHacerColor')}</a>
       </section>
 
-      <div className="pub-group">
-        <a className="pub-row" href="#/recomendaciones" style={{ '--sep-inset': '58px' }}>
-          <span className="pub-row-icon" style={{ background: 'var(--p-accent)' }}><IcoGuia size={20} color="#fff" /></span>
-          <span className="pub-row-main"><span className="pub-row-title">{pubT('recTitulo')}</span></span>
-          <IcoChev className="pub-chev" />
-        </a>
-        <a className="pub-row" href="#/reportar" style={{ '--sep-inset': '58px' }}>
-          <span className="pub-row-icon" style={{ background: '#8e5bd8' }}><IcoBand size={20} color="#fff" /></span>
-          <span className="pub-row-main"><span className="pub-row-title">{pubT('reportarProblema')}</span></span>
-          <IcoChev className="pub-chev" />
-        </a>
-      </div>
-
-      <PubPie />
+      <a className="pub-btn pub-btn-outline" href="#/reportar"><IcoBand size={20} />{pubT('reportarProblema')}</a>
     </>
   );
 }
 
 function PubMunicipio({ id }) {
   const fuentes = pubFuentes().list.filter(p => p.muni === id);
-  const muni = GJ.MUNICIPIOS.find(m => m.id === id);
-  if (!fuentes.length || !muni) {
-    return <p className="pub-lead" style={{ paddingTop: 24 }}>{pubT('fuenteNoEncontrada')}</p>;
+  const nombre = muniNombre(id);
+  if (!fuentes.length) {
+    return <><a className="pub-back" href="#/">{pubT('volverInicio')}</a><p className="pub-lead">{pubT('fuenteNoEncontrada')}</p></>;
   }
   const n = fuentes.length;
   const c = { 'Apta': 0, 'Precaución': 0, 'Crítico': 0 };
@@ -504,49 +394,44 @@ function PubMunicipio({ id }) {
 
   const k = x => Math.max(1, Math.round(10 * x / n));
   let resumen;
-  if (c['Crítico'] / n >= 0.25) resumen = pubT('resumenCritico', { k: k(c['Crítico']), muni: muni.name });
-  else if ((c['Crítico'] + c['Precaución']) / n >= 0.35) resumen = pubT('resumenCuidado', { k: k(c['Crítico'] + c['Precaución']), muni: muni.name });
-  else resumen = pubT('resumenBien', { k: k(c['Apta']), muni: muni.name });
+  if (c['Crítico'] / n >= 0.25) resumen = pubT('resumenCritico', { k: k(c['Crítico']), muni: nombre });
+  else if ((c['Crítico'] + c['Precaución']) / n >= 0.35) resumen = pubT('resumenCuidado', { k: k(c['Crítico'] + c['Precaución']), muni: nombre });
+  else resumen = pubT('resumenBien', { k: k(c['Apta']), muni: nombre });
 
   return (
     <>
-      <section className="pub-hero">
-        <Caratula muni={muni} />
-        <div className="pub-stack-sm" style={{ gap: 2 }}>
-          <h1 className="pub-hero-title">{muni.name}</h1>
-          <p className="pub-hero-sub">{pubT('zona_' + muni.zona)}</p>
-          <p className="pub-small">{pubT('resumenMuni', { n: n.toLocaleString('es-CO'), fecha: mesAnio(ultimaFecha(fuentes)) })}</p>
-        </div>
-        <div className="pub-btn-row">
-          <a className="pub-btn" href={'#/fuentes?m=' + id}><IcoPin size={20} />{pubT('verEnMapa')}</a>
-          <a className="pub-btn pub-btn-tinted" href="#/recomendaciones"><IcoGuia size={20} />{pubT('queHacerCorto')}</a>
-        </div>
+      <a className="pub-back" href="#/">{pubT('cambiarMunicipio')}</a>
+      <section className="pub-stack-sm">
+        <h1 className="pub-h1 pub-h1-xl">{nombre}</h1>
+        <p className="pub-small">{pubT('revisadas', { n: n.toLocaleString('es-CO'), fecha: mesAnio(ultimaFecha(fuentes)) })}</p>
       </section>
 
-      <section className="pub-summary">
-        <p>{resumen}</p>
+      <section className="pub-card pub-stack" style={{ gap: 16 }}>
+        <p style={{ fontSize: 22, lineHeight: 1.3, fontWeight: 700 }}>{resumen}</p>
         <div className="pub-bar" role="img" aria-label={pubT('distribucion', { a: pct[0], p: pct[1], c: pct[2] })}>
           <div style={{ flex: c['Apta'] }} /><div style={{ flex: c['Precaución'] }} /><div style={{ flex: c['Crítico'] }} />
         </div>
-      </section>
-
-      <section>
-        <h2 className="pub-group-title">{pubT('porEstado')}</h2>
-        <div className="pub-group pub-track">
+        <div className="pub-stack-sm" style={{ gap: 10 }}>
           {['Apta', 'Precaución', 'Crítico'].map((e, i) => (
-            <a key={e} className="pub-row" href={'#/fuentes?m=' + id + '&e=' + encodeURIComponent(e)}>
-              <MiniEstado estado={e} />
-              <span className="pub-row-main">
-                <span className="pub-row-title">{pubT('estado_' + e)}</span>
-                <span className="pub-row-sub">{pct[i]} %</span>
-              </span>
-              <span className="pub-row-value"><b>{c[e].toLocaleString('es-CO')}</b></span>
-              <IcoChev className="pub-chev" />
-            </a>
+            <div key={e} className="pub-dist-row">
+              <IcoEstado estado={e} size={24} />
+              <span className="lbl">{pubT('estado_' + e)}</span>
+              <span className="n">{c[e].toLocaleString('es-CO')}</span>
+              <span className="pct">{pct[i]} %</span>
+            </div>
           ))}
         </div>
-        <p className="pub-group-foot">{pubT('cadaFuente')}</p>
       </section>
+
+      <section className="pub-stack">
+        <p className="pub-lead" style={{ color: '#2c3a33' }}>{pubT('cadaFuente')}</p>
+        <a className="pub-btn" href={'#/fuentes?m=' + id}><IcoPin size={22} />{pubT('buscarEnMapa')}</a>
+      </section>
+
+      <a className="pub-card-link" href="#/recomendaciones">
+        <strong>{pubT('queHacerTitulo')}</strong>
+        <span>{pubT('queHacerDesc')}</span>
+      </a>
     </>
   );
 }
@@ -558,9 +443,8 @@ function PubMapa({ puntos, user }) {
 
   useEffect(() => {
     if (!window.L || !ref.current) return;
-    const oscuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const map = L.map(ref.current, { zoomControl: true, attributionControl: true, scrollWheelZoom: false });
-    L.tileLayer(`https://{s}.basemaps.cartocdn.com/${oscuro ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`, {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '© OpenStreetMap · CARTO', subdomains: 'abcd', maxZoom: 18,
     }).addTo(map);
     capaRef.current = L.layerGroup().addTo(map);
@@ -581,29 +465,14 @@ function PubMapa({ puntos, user }) {
       bounds.push([p.lat, p.lon]);
     });
     if (user) {
-      const icon = L.divIcon({ className: '', html: '<span class="pub-mk-user"></span>', iconSize: [22, 22], iconAnchor: [11, 11] });
+      const icon = L.divIcon({ className: '', html: '<span class="pub-mk-user"></span>', iconSize: [24, 24], iconAnchor: [12, 12] });
       L.marker([user.lat, user.lon], { icon, title: pubT('tu'), keyboard: false, zIndexOffset: 1000 }).addTo(capa);
       bounds.push([user.lat, user.lon]);
     }
-    if (bounds.length) map.fitBounds(bounds, { padding: [28, 28], maxZoom: 15 });
+    if (bounds.length) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 15 });
   }, [puntos, user]);
 
   return <div ref={ref} className="pub-map" role="region" aria-label={pubT('mapaEtiqueta')} />;
-}
-
-function ListaMunicipios({ destino }) {
-  const munis = GJ.MUNICIPIOS.slice().sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  return (
-    <div className="pub-group pub-track" style={{ '--sep-inset': '68px' }}>
-      {munis.map(m => (
-        <a key={m.id} className="pub-row" href={destino(m.id)}>
-          <span style={{ width: 40 }}><Caratula muni={m} /></span>
-          <span className="pub-row-main"><span className="pub-row-title">{m.name}</span><span className="pub-row-sub">{pubT('zona_' + m.zona)}</span></span>
-          <IcoChev className="pub-chev" />
-        </a>
-      ))}
-    </div>
-  );
 }
 
 function PubFuentes({ query }) {
@@ -611,15 +480,15 @@ function PubFuentes({ query }) {
   const cerca = query.cerca === '1' || !muni;
   const [pos, setPos] = useState(cerca ? posGuardada() : null);
   const [geo, setGeo] = useState(cerca && !posGuardada() ? 'pidiendo' : 'ok');
-  const [filtro, setFiltro] = useState(PUB_CLASE[query.e] ? query.e : null);
-  const [limite, setLimite] = useState(12);
+  const [filtro, setFiltro] = useState(null);
+  const [limite, setLimite] = useState(10);
 
   function ubicar() {
     setGeo('pidiendo');
     pedirUbicacion().then(p => { setPos(p); setGeo('ok'); }).catch(() => setGeo('negada'));
   }
   useEffect(() => { if (cerca && !pos) ubicar(); }, [cerca]);
-  useEffect(() => { setLimite(12); }, [filtro, muni, cerca]);
+  useEffect(() => { setLimite(10); }, [filtro, muni, cerca]);
 
   const { list } = pubFuentes();
   const base = useMemo(() => {
@@ -635,21 +504,25 @@ function PubFuentes({ query }) {
 
   const visibles = filtro ? base.filter(p => p.estado === filtro) : base;
   const titulo = muni ? pubT('fuentesDe', { muni: muniNombre(muni) }) : pubT('fuentesCerca');
+  const volver = muni ? '#/municipio/' + muni : '#/';
 
   if (!muni && !pos) {
     return (
       <>
-        <h1 className="pub-largetitle">{pubT('fuentesCerca')}</h1>
+        <a className="pub-back" href="#/">{pubT('volverInicio')}</a>
+        <h1 className="pub-h1">{pubT('fuentesCerca')}</h1>
         {geo === 'pidiendo'
           ? <p className="pub-lead" role="status">{pubT('pidiendoUbicacion')}</p>
-          : <>
-              <div className="pub-callout pub-callout-warn" role="alert"><IcoCuid size={22} color="var(--p-warn-txt)" /><span>{pubT('ubicacionNegada')}</span></div>
-              <button className="pub-btn pub-btn-tinted" onClick={ubicar}><IcoPin size={20} />{pubT('reintentar')}</button>
-              <section>
-                <h2 className="pub-group-title">{pubT('municipios')}</h2>
-                <ListaMunicipios destino={id => '#/fuentes?m=' + id} />
-              </section>
-            </>}
+          : <div className="pub-stack">
+              <div className="pub-callout pub-callout-warn" role="alert"><IcoCuid size={24} /><span>{pubT('ubicacionNegada')}</span></div>
+              <button className="pub-btn pub-btn-outline" onClick={ubicar}><IcoPin size={20} />{pubT('reintentar')}</button>
+              <h2 className="pub-h2" style={{ marginTop: 8 }}>{pubT('eligeMunicipio')}</h2>
+              <div className="pub-muni-grid">
+                {GJ.MUNICIPIOS.slice().sort((a, b) => a.name.localeCompare(b.name, 'es')).map(m => (
+                  <a key={m.id} className="pub-muni" href={'#/fuentes?m=' + m.id}><b>{m.name}</b></a>
+                ))}
+              </div>
+            </div>}
       </>
     );
   }
@@ -659,119 +532,114 @@ function PubFuentes({ query }) {
 
   return (
     <>
-      <h1 className="pub-largetitle">{titulo}</h1>
+      <a className="pub-back" href={volver}>{muni ? pubT('volver') : pubT('volverInicio')}</a>
+      <h1 className="pub-h1">{titulo}</h1>
 
       {pos && masCercana && masCercana.km > 25 && (
-        <div className="pub-callout pub-callout-warn"><IcoCuid size={22} color="var(--p-warn-txt)" /><span>{pubT('lejos', { km: fmtKm(masCercana.km) })}</span></div>
+        <div className="pub-callout pub-callout-warn"><IcoCuid size={24} /><span>{pubT('lejos', { km: fmtKm(masCercana.km) })}</span></div>
       )}
       {pos && (aptaCercana
-        ? <div className="pub-callout pub-callout-ok"><IcoBien size={22} color="var(--p-ok-txt)" /><span>{pubT('aptaMasCercana', { km: fmtKm(aptaCercana.km) })}</span></div>
-        : <div className="pub-callout pub-callout-warn"><IcoCuid size={22} color="var(--p-warn-txt)" /><span>{pubT('sinAptaCerca')}</span></div>)}
+        ? <div className="pub-callout pub-callout-ok"><IcoBien size={26} /><span>{pubT('aptaMasCercana', { km: fmtKm(aptaCercana.km) })}</span></div>
+        : <div className="pub-callout pub-callout-warn"><IcoCuid size={24} /><span>{pubT('sinAptaCerca')}</span></div>)}
       {!pos && (
-        <button className="pub-btn pub-btn-tinted" onClick={ubicar}>
+        <button className="pub-btn pub-btn-outline" onClick={() => { ubicar(); }}>
           <IcoPin size={20} />{geo === 'pidiendo' ? pubT('pidiendoUbicacion') : pubT('usarUbicacion')}
         </button>
       )}
       {geo === 'negada' && muni && (
-        <div className="pub-callout pub-callout-warn" role="alert"><IcoCuid size={22} color="var(--p-warn-txt)" /><span>{pubT('ubicacionNegada')}</span></div>
+        <div className="pub-callout pub-callout-warn" role="alert"><IcoCuid size={24} /><span>{pubT('ubicacionNegada')}</span></div>
       )}
 
       <PubMapa puntos={visibles} user={pos} />
 
-      <div className="pub-seg" role="group" aria-label={pubT('filtrar')}>
-        <button aria-pressed={filtro === null} onClick={() => setFiltro(null)}>{pubT('todas')}</button>
+      <div className="pub-chips" role="group" aria-label={pubT('filtrar')}>
+        <button className="pub-chip" aria-pressed={filtro === null} onClick={() => setFiltro(null)}>{pubT('todas')}</button>
         {['Apta', 'Precaución', 'Crítico'].map(e => (
-          <button key={e} aria-pressed={filtro === e} onClick={() => setFiltro(e)}>
-            <span className={'pub-mark pub-mark-' + PUB_CLASE[e]} />{pubT('filtro_' + e)}
+          <button key={e} className="pub-chip" aria-pressed={filtro === e} onClick={() => setFiltro(e)}>
+            <span className={'pub-mark pub-mark-' + PUB_CLASE[e]} style={{ width: 12, height: 12 }} />{pubT('filtro_' + e)}
           </button>
         ))}
       </div>
 
       {visibles.length === 0
         ? <p className="pub-lead">{pubT('ningunaFiltro')}</p>
-        : <ul className="pub-group pub-track" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        : <ul className="pub-list">
             {visibles.slice(0, limite).map(p => (
-              <li key={p.id} className="pub-row" style={{ padding: 0 }}>
-                <a className="pub-row" href={'#/fuente/' + encodeURIComponent(p.id)} style={{ flex: 1 }}>
-                  <MiniEstado estado={p.estado} />
-                  <span className="pub-row-main">
-                    <span className="pub-row-title">{p.tipo}{p.km != null ? ' · ' + pubT('aKm', { km: fmtKm(p.km) }) : ''}</span>
-                    <span className={'pub-row-sub pub-txt-' + PUB_CLASE[p.estado]}>{pubT('estado_' + p.estado)}</span>
-                    {p.km == null && <span className="pub-row-sub" style={{ fontSize: 13 }}>{p.id}</span>}
+              <li key={p.id}>
+                <a className="pub-item" href={'#/fuente/' + encodeURIComponent(p.id)}>
+                  <span className={'pub-mark pub-mark-' + PUB_CLASE[p.estado]} />
+                  <span className="t">
+                    <b>{p.tipo}{p.km != null ? ' · ' + pubT('aKm', { km: fmtKm(p.km) }) : ' · ' + p.id}</b>
+                    <span className={'s pub-txt-' + PUB_CLASE[p.estado]}>{pubT('estado_' + p.estado)}</span>
                   </span>
-                  <IcoChev className="pub-chev" />
+                  <span aria-hidden="true" style={{ fontSize: 20, color: '#556059' }}>›</span>
                 </a>
               </li>
             ))}
           </ul>}
       {visibles.length > limite && (
-        <button className="pub-btn pub-btn-tinted pub-btn-block" onClick={() => setLimite(limite + 12)}>{pubT('mostrarMas')}</button>
+        <button className="pub-btn pub-btn-outline" onClick={() => setLimite(limite + 10)}>{pubT('mostrarMas')}</button>
       )}
     </>
   );
 }
 
+function PubQueHacer({ estado }) {
+  return (
+    <div className="pub-stack">
+      <div className="pub-do"><IcoVaso size={26} /><div><b>{pubT('hacerBeber')}</b><span>{pubT('hacer_' + estado + '_beber')}</span></div></div>
+      <div className="pub-do"><IcoTete size={26} /><div><b>{pubT('hacerBebes')}</b><span>{pubT('hacer_' + estado + '_bebes')}</span></div></div>
+      <div className="pub-do"><IcoLava size={26} /><div><b>{pubT('hacerLavar')}</b><span>{pubT('hacer_' + estado + '_lavar')}</span></div></div>
+    </div>
+  );
+}
+
 function PubFuente({ id }) {
   const p = pubFuentes().porId[id];
-  if (!p) return <p className="pub-lead" style={{ paddingTop: 24 }}>{pubT('fuenteNoEncontrada')}</p>;
+  if (!p) {
+    return <><a className="pub-back" href="#/">{pubT('volverInicio')}</a><p className="pub-lead">{pubT('fuenteNoEncontrada')}</p></>;
+  }
   const pos = posGuardada();
   const km = pos ? distanciaKm(pos, p) : null;
   const clase = PUB_CLASE[p.estado];
   const phNormal = p.ph >= GJ.UMBRALES.precaucion.phMin && p.ph <= GJ.UMBRALES.precaucion.phMax;
-  const hacer = [
-    [IcoVaso, 'hacerBeber', 'beber'],
-    [IcoTete, 'hacerBebes', 'bebes'],
-    [IcoLava, 'hacerLavar', 'lavar'],
-  ];
 
   return (
     <>
-      <section className="pub-stack-sm" style={{ gap: 2, paddingTop: 6 }}>
-        <span className="pub-eyebrow">{p.muniName}</span>
-        <h1 className="pub-largetitle" style={{ paddingTop: 0 }}>{p.tipo}</h1>
-        <p className="pub-small">{km != null ? pubT('deTi', { km: fmtKm(km) }) + ' · ' : ''}{p.id}</p>
+      <a className="pub-back" href="#/" onClick={volverAtras}>{pubT('volver')}</a>
+
+      <section className="pub-stack-sm" style={{ gap: 4 }}>
+        <h1 className="pub-h1">{p.tipo}</h1>
+        <p style={{ fontSize: 17, color: '#3d4742' }}>{km != null ? pubT('deTi', { km: fmtKm(km) }) + ' · ' : ''}{p.muniName}</p>
+        <p style={{ fontSize: 14, color: '#556059' }}>{pubT('codigoFuente', { id: p.id })}</p>
       </section>
 
-      <section className={'pub-status pub-status-' + clase}>
-        <div className="pub-status-title"><IcoEstado estado={p.estado} size={30} color="#fff" />{pubT('estado_' + p.estado)}</div>
+      <section className={'pub-status-card pub-st-' + clase} style={{ background: `var(--p-${clase === 'apta' ? 'ok' : clase === 'precaucion' ? 'warn' : 'bad'}-bg)` }}>
+        <div className="pub-status-title"><IcoEstado estado={p.estado} size={30} />{pubT('estado_' + p.estado)}</div>
         <p>{motivosPublicos(p)}</p>
       </section>
 
-      {!p.activo && <div className="pub-callout pub-callout-info"><IcoCuid size={22} color="var(--p-accent)" /><span>{pubT('inactiva')}</span></div>}
+      {!p.activo && <div className="pub-callout pub-callout-info"><IcoCuid size={24} /><span>{pubT('inactiva')}</span></div>}
 
-      <section>
-        <h2 className="pub-group-title">{pubT('queHacerEsta')}</h2>
-        <div className="pub-group">
-          {hacer.map(([Ico, t, k]) => (
-            <div key={k} className="pub-row" style={{ '--sep-inset': '58px', alignItems: 'flex-start' }}>
-              <span className="pub-row-icon" style={{ background: 'var(--p-accent)', marginTop: 2 }}><Ico size={18} color="#fff" /></span>
-              <span className="pub-row-main">
-                <span className="pub-row-title" style={{ fontWeight: 600 }}>{pubT(t)}</span>
-                <span className="pub-row-sub" style={{ color: 'var(--p-text-2)' }}>{pubT('hacer_' + p.estado + '_' + k)}</span>
-              </span>
-            </div>
-          ))}
-          <a className="pub-row" href="#/recomendaciones" style={{ '--sep-inset': '16px' }}>
-            <span className="pub-row-main"><span className="pub-row-title" style={{ color: 'var(--p-accent)' }}>{pubT('verTodasRec').replace(' →', '')}</span></span>
-            <IcoChev className="pub-chev" />
-          </a>
+      <section className="pub-stack">
+        <h2 className="pub-h2">{pubT('queHacerEsta')}</h2>
+        <PubQueHacer estado={p.estado} />
+        <a className="pub-link-strong" href="#/recomendaciones">{pubT('verTodasRec')}</a>
+      </section>
+
+      <details className="pub-details">
+        <summary>{pubT('verValores')}</summary>
+        <div className="rows">
+          <div><span>{pubT('valCond')}</span><b>{GJ.fmtMiles(p.cond)} µS/cm</b></div>
+          <div><span>{pubT('valPh')}</span><b>{String(p.ph).replace('.', ',')}{phNormal ? ' · ' + pubT('normal') : ''}</b></div>
+          <div><span>{pubT('valSal')}</span><b>{p.sal != null ? String(p.sal).replace('.', ',') + ' mS/cm' : pubT('sinDato')}</b></div>
+          <div><span>{pubT('valTemp')}</span><b>{p.temp != null ? String(p.temp).replace('.', ',') + ' °C' : pubT('sinDato')}</b></div>
         </div>
-      </section>
+      </details>
 
-      <section>
-        <details className="pub-details">
-          <summary>{pubT('valoresMedidos')}<IcoChev className="pub-chev" /></summary>
-          <div>
-            <div className="pub-row"><span className="pub-row-main"><span className="pub-row-title">{pubT('valCond')}</span></span><span className="pub-row-value">{GJ.fmtMiles(p.cond)} µS/cm</span></div>
-            <div className="pub-row"><span className="pub-row-main"><span className="pub-row-title">{pubT('valPh')}</span></span><span className="pub-row-value">{String(p.ph).replace('.', ',')}{phNormal ? ' · ' + pubT('normal') : ''}</span></div>
-            <div className="pub-row"><span className="pub-row-main"><span className="pub-row-title">{pubT('valSal')}</span></span><span className="pub-row-value">{p.sal != null ? String(p.sal).replace('.', ',') + ' mS/cm' : pubT('sinDato')}</span></div>
-            <div className="pub-row"><span className="pub-row-main"><span className="pub-row-title">{pubT('valTemp')}</span></span><span className="pub-row-value">{p.temp != null ? String(p.temp).replace('.', ',') + ' °C' : pubT('sinDato')}</span></div>
-          </div>
-        </details>
-        <p className="pub-group-foot">{pubT('medidoEl', { fecha: fechaLarga(p.fecha), temporada: p.temporada === 'Seca' ? 'seca' : 'de lluvias' })}</p>
-      </section>
+      <p className="pub-small">{pubT('medidoEl', { fecha: fechaLarga(p.fecha), temporada: p.temporada === 'Seca' ? 'seca' : 'de lluvias' })}</p>
 
-      <a className="pub-btn pub-btn-tinted pub-btn-block" href={'#/reportar?f=' + encodeURIComponent(p.id)}><IcoBand size={20} />{pubT('reportarEsta')}</a>
+      <a className="pub-btn pub-btn-outline" href={'#/reportar?f=' + encodeURIComponent(p.id)}><IcoBand size={20} />{pubT('reportarEsta')}</a>
     </>
   );
 }
@@ -784,34 +652,26 @@ function PubRecomendaciones() {
   ];
   return (
     <>
-      <h1 className="pub-largetitle">{pubT('recTitulo')}</h1>
+      <a className="pub-back" href="#/">{pubT('volverInicio')}</a>
+      <h1 className="pub-h1">{pubT('recTitulo')}</h1>
 
-      <section className="pub-feature">
-        <GotaArte className="pub-feature-drop" />
-        <span className="pub-eyebrow">{pubT('recGeneralTitulo')}</span>
-        <h2>{pubT('recGeneralH')}</h2>
-        <p>{pubT('recGeneralP')}</p>
-        <p>{pubT('recGeneral2')}</p>
+      <section className="pub-callout pub-callout-brand">
+        <strong>{pubT('recGeneralTitulo')}</strong>
+        <span>{pubT('recGeneral1')}</span>
+        <span>{pubT('recGeneral2')}</span>
       </section>
 
       {bloques.map(([estado, filas]) => (
-        <section key={estado}>
-          <h2 className="pub-group-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className={'pub-mark pub-mark-' + PUB_CLASE[estado]} style={{ width: 11, height: 11, borderWidth: 1.5 }} />{pubT('estado_' + estado)}
-          </h2>
-          <div className="pub-group">
-            {filas.map(([a, b]) => (
-              <div key={a} className="pub-row">
-                <span className="pub-row-main"><span className="pub-row-title">{pubT(a)}</span></span>
-                <span className="pub-row-value" style={{ color: b === 'recNo' ? 'var(--p-bad-txt)' : 'var(--p-text)', fontWeight: 600, maxWidth: '55%' }}>{pubT(b)}</span>
-              </div>
-            ))}
+        <section key={estado} className="pub-card pub-stack" style={{ gap: 8 }}>
+          <div className={'pub-rec-head pub-txt-' + PUB_CLASE[estado]}><IcoEstado estado={estado} size={24} />{pubT('estado_' + estado)}</div>
+          <div className="pub-rec-grid">
+            {filas.map(([a, b]) => <React.Fragment key={a}><span>{pubT(a)}</span><b>{pubT(b)}</b></React.Fragment>)}
           </div>
-          {estado === 'Crítico' && <p className="pub-group-foot">{pubT('recHervirSal')}</p>}
+          {estado === 'Crítico' && <p style={{ fontSize: 15, color: '#3d2422', marginTop: 4 }}>{pubT('recHervirSal')}</p>}
         </section>
       ))}
 
-      <div className="pub-callout pub-callout-info"><IcoCruz size={22} color="var(--p-accent)" /><span>{pubT('recSalud')}</span></div>
+      <section className="pub-callout pub-callout-info"><IcoCruz size={24} /><span>{pubT('recSalud')}</span></section>
     </>
   );
 }
@@ -823,60 +683,49 @@ function PubReportar({ query }) {
 
   return (
     <>
+      <a className="pub-back" href="#/" onClick={volverAtras}>{pubT('volver')}</a>
       <section className="pub-stack-sm">
-        <h1 className="pub-largetitle">{pubT('repTitulo')}</h1>
+        <h1 className="pub-h1">{pubT('repTitulo')}</h1>
         <p className="pub-lead">{pubT('repIntro')}</p>
       </section>
 
-      <form className="pub-stack" style={{ gap: 26 }} onSubmit={e => e.preventDefault()}>
-        <section>
-          <h2 className="pub-group-title">{pubT('repFuente')}</h2>
-          <div className="pub-group">
-            {p
-              ? <div className="pub-row">
-                  <MiniEstado estado={p.estado} size={40} />
-                  <span className="pub-row-main"><span className="pub-row-title">{p.tipo} · {p.muniName}</span><span className="pub-row-sub">{p.id}</span></span>
-                  <a href="#/fuentes?cerca=1" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}>{pubT('repCambiar')}</a>
-                </div>
-              : <a className="pub-row" href="#/fuentes?cerca=1">
-                  <span className="pub-row-main"><span className="pub-row-title">{pubT('repSinFuente')}</span></span>
-                  <span style={{ color: 'var(--p-accent)' }}>{pubT('repElegir')}</span>
-                  <IcoChev className="pub-chev" />
-                </a>}
-          </div>
+      <form className="pub-stack" style={{ gap: 20 }} onSubmit={e => e.preventDefault()}>
+        <section className="pub-stack-sm" style={{ gap: 8 }}>
+          <h2 className="pub-h2" style={{ fontSize: 18 }}>{pubT('repFuente')}</h2>
+          {p
+            ? <div className="pub-item" style={{ cursor: 'default' }}>
+                <span className={'pub-mark pub-mark-' + PUB_CLASE[p.estado]} />
+                <span className="t"><b>{p.tipo} · {p.muniName}</b><span style={{ fontSize: 14, color: '#556059' }}>{pubT('codigoFuente', { id: p.id })}</span></span>
+                <a href="#/fuentes?cerca=1" className="pub-link-strong" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}>{pubT('repCambiar')}</a>
+              </div>
+            : <div className="pub-item" style={{ cursor: 'default' }}>
+                <span className="t"><span style={{ fontSize: 16 }}>{pubT('repSinFuente')}</span></span>
+                <a href="#/fuentes?cerca=1" className="pub-link-strong" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}>{pubT('repElegir')}</a>
+              </div>}
         </section>
 
-        <fieldset style={{ margin: 0, padding: 0, border: 0, minWidth: 0 }}>
-          <legend className="pub-group-title" style={{ padding: '0 16px 6px' }}>{pubT('repQueNotaste')}</legend>
-          <div className="pub-group">
-            {opciones.map(o => (
-              <label key={o} className="pub-row pub-check-row">
-                <input type="checkbox" checked={!!marcadas[o]} onChange={() => setMarcadas({ ...marcadas, [o]: !marcadas[o] })} />
-                <span className="pub-row-main"><span className="pub-row-title">{pubT('rep_' + o)}</span></span>
-                <IcoTick className="pub-tick" />
-              </label>
-            ))}
-          </div>
+        <fieldset className="pub-fieldset">
+          <legend className="pub-legend-title">{pubT('repQueNotaste')}</legend>
+          {opciones.map(o => (
+            <label key={o} className="pub-check">
+              <input type="checkbox" checked={!!marcadas[o]} onChange={() => setMarcadas({ ...marcadas, [o]: !marcadas[o] })} />
+              <span>{pubT('rep_' + o)}</span>
+            </label>
+          ))}
         </fieldset>
 
-        <section>
-          <label htmlFor="rep-detalle" className="pub-group-title" style={{ display: 'block' }}>{pubT('repDetalle')} {pubT('opcional')}</label>
-          <div className="pub-group">
-            <textarea id="rep-detalle" className="pub-input" rows="4" maxLength={1000} placeholder={pubT('repDetallePh')} />
-          </div>
-        </section>
-
-        <section>
-          <label htmlFor="rep-tel" className="pub-group-title" style={{ display: 'block' }}>{pubT('repTelefono')} {pubT('opcional')}</label>
-          <div className="pub-group">
-            <input id="rep-tel" className="pub-input" type="tel" inputMode="tel" autoComplete="tel" maxLength={20} placeholder="300 000 0000" />
-          </div>
-        </section>
-
-        <div className="pub-stack" style={{ gap: 10 }}>
-          <button type="submit" className="pub-btn pub-btn-block" disabled aria-describedby="rep-aviso">{pubT('repEnviar')}</button>
-          <p className="pub-foot" id="rep-aviso" style={{ textAlign: 'center', padding: '0 12px' }}>{pubT('repNoDisponible')}</p>
+        <div className="pub-field">
+          <label htmlFor="rep-detalle">{pubT('repDetalle')} <span>{pubT('opcional')}</span></label>
+          <textarea id="rep-detalle" rows="3" maxLength={1000} placeholder={pubT('repDetallePh')} />
         </div>
+
+        <div className="pub-field">
+          <label htmlFor="rep-tel">{pubT('repTelefono')} <span>{pubT('opcional')}</span></label>
+          <input id="rep-tel" type="tel" inputMode="tel" autoComplete="tel" maxLength={20} placeholder="300 000 0000" />
+        </div>
+
+        <div className="pub-callout pub-callout-warn" id="rep-aviso"><IcoCuid size={24} /><span>{pubT('repNoDisponible')}</span></div>
+        <button type="submit" className="pub-btn" disabled aria-describedby="rep-aviso">{pubT('repEnviar')}</button>
       </form>
     </>
   );
@@ -892,37 +741,23 @@ function PublicApp({ ruta }) {
   useEffect(() => { document.documentElement.lang = 'es'; }, []);
 
   const [a, b] = ruta.parts;
-  let body, tab = 'inicio', titulo = pubT('tabInicio'), atras = null;
-  if (!a) {
-    body = <PubInicio />;
-  } else if (a === 'municipio') {
-    body = <PubMunicipio id={b} />;
-    titulo = muniNombre(b); atras = { href: '#/', label: pubT('tabInicio') };
-  } else if (a === 'fuentes') {
-    body = <PubFuentes key={ruta.path + JSON.stringify(ruta.query)} query={ruta.query} />;
-    tab = 'cerca';
-    titulo = ruta.query.m ? muniNombre(ruta.query.m) : pubT('tabCerca');
-    if (ruta.query.m) atras = { href: '#/municipio/' + ruta.query.m, label: muniNombre(ruta.query.m) };
-  } else if (a === 'fuente') {
-    const p = pubFuentes().porId[decodeURIComponent(b || '')];
-    body = <PubFuente id={decodeURIComponent(b || '')} />;
-    tab = 'cerca'; titulo = p ? p.tipo : ''; atras = { href: '#/fuentes?cerca=1', label: pubT('volver').replace('← ', ''), historial: true };
-  } else if (a === 'recomendaciones') {
-    body = <PubRecomendaciones />; tab = 'guia'; titulo = pubT('tabQueHacer');
-  } else if (a === 'reportar') {
-    body = <PubReportar query={ruta.query} />; tab = 'reportar'; titulo = pubT('tabReportar');
-  } else {
-    body = <PubInicio />;
-  }
+  let body;
+  if (!a)                          body = <PubInicio />;
+  else if (a === 'municipio')      body = <PubMunicipio id={b} />;
+  else if (a === 'fuentes')        body = <PubFuentes key={ruta.path + JSON.stringify(ruta.query)} query={ruta.query} />;
+  else if (a === 'fuente')         body = <PubFuente id={decodeURIComponent(b || '')} />;
+  else if (a === 'recomendaciones') body = <PubRecomendaciones />;
+  else if (a === 'reportar')       body = <PubReportar query={ruta.query} />;
+  else                             body = <PubInicio />;
 
   const sinTraduccion = idioma === 'guc' && Object.keys(PUB_TEXTOS.guc).length === 0;
 
   return (
-    <div className="pub pub-grouped-bg">
-      <PubNav titulo={titulo} atras={atras} idioma={idioma} setIdioma={setIdioma} />
+    <div className="pub">
+      <PubHeader idioma={idioma} setIdioma={setIdioma} />
       {sinTraduccion && <div className="pub-notice-lang" role="status">{pubT('gucPendiente')}</div>}
       <main className="pub-main">{body}</main>
-      <PubTabBar activa={tab} />
+      <PubFooter />
     </div>
   );
 }
