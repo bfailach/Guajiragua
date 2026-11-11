@@ -1,4 +1,4 @@
-// Punto de entrada: vista pública y panel institucional
+// Main app — routes between pages
 
 function AppFooter() {
   const [apiLive, setApiLive] = useState(window.GJ_API_LIVE || false);
@@ -54,54 +54,37 @@ function AppFooter() {
   );
 }
 
-// ── Panel institucional: la vista técnica completa, detrás del inicio de sesión
-function PanelInstitucional() {
+function App() {
   const [page, setPage] = useState('fisico');
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    // Espera a que el API cargue los datos (o falle y use fallback)
+    (window.GJ_API_READY || Promise.resolve(false)).then(() => {
+      // Reconstruir window.GJ con los datos frescos del API si llegaron
+      if (window.GJ_API_LIVE && window.GJ_REAL_POINTS && window.buildGJ) {
+        window.buildGJ(window.GJ_REAL_POINTS);
+      }
+      setReady(true);
+    });
+  }, []);
+
+  if (!ready) return null; // El loader HTML ya está visible mientras tanto
 
   let body = null;
   if (page === 'fisico')  body = <PageFisicoquimica />;
   if (page === 'tend')    body = <PageTendencias />;
   if (page === 'alertas') body = <PageAlertas />;
-  if (page === 'admin')   body = <PageAdmin />;
+  if (page === 'admin')   body = <AdminGate><PageAdmin /></AdminGate>;
 
   return (
     <div className="app" data-screen-label={'Guajiragua · ' + page}>
       <TopNav page={page} setPage={setPage} />
       {body}
       <AppFooter />
+      <ToastStack />
     </div>
   );
 }
 
-// ── Raíz: vista pública por defecto; #/panel abre el panel institucional
-function Root() {
-  const ruta = useRuta();
-  const [version, setVersion] = useState(0);
-
-  // La app se muestra de inmediato con los datos estáticos; si el API responde,
-  // se reconstruye con los datos en vivo sin bloquear la pantalla.
-  useEffect(() => {
-    (window.GJ_API_READY || Promise.resolve(false)).then(live => {
-      if (live && window.GJ_REAL_POINTS && window.buildGJ) {
-        window.buildGJ(window.GJ_REAL_POINTS);
-        setVersion(v => v + 1);
-      }
-    });
-  }, []);
-
-  const panel = ruta.parts[0] === 'panel';
-  useEffect(() => {
-    document.title = panel ? 'Guajiragua · Panel institucional' : 'Guajiragua · Calidad del agua en La Guajira';
-  }, [panel]);
-
-  return (
-    <>
-      {panel
-        ? <AdminGate><PanelInstitucional key={version} /></AdminGate>
-        : <PublicApp key={version} ruta={ruta} />}
-      <ToastStack />
-    </>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<Root/>);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);

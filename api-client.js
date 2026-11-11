@@ -3,11 +3,11 @@
  * Guajiragua · Sistema BI Hidrogeológico
  *
  * Flujo:
- *  1. La app se muestra de inmediato con real-data.js
- *  2. Intenta GET /api/health (timeout 35 s) y descarga /api/puntos paginado
+ *  1. Muestra pantalla de carga
+ *  2. Intenta GET /api/puntos?limit=2000 (timeout 5s)
  *  3. Si OK → reemplaza window.GJ_REAL_POINTS con datos live de Supabase
  *  4. Si falla → usa real-data.js estático como fallback
- *  5. Resuelve window.GJ_API_READY para que main.jsx reconstruya los datos
+ *  5. Resuelve window.GJ_API_READY para que main.jsx monte la app
  */
 
 (function () {
@@ -16,9 +16,43 @@
   window.GJ_API_BASE = API_BASE;
   window.GJ_API_LIVE = false;
 
-  // Mensajes de progreso (solo consola: la app no muestra pantalla de carga)
+  /* ── Pantalla de carga ─────────────────────────────────────────────── */
+  const loader = document.createElement('div');
+  loader.id = 'gj-loader';
+  loader.innerHTML = `
+    <div style="
+      position:fixed;inset:0;z-index:9999;
+      background:#0f0f0f;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      font-family:'JetBrains Mono',monospace;color:#888;gap:20px;
+    ">
+      <div style="font-size:13px;letter-spacing:0.2em;color:#ccc;">GUAJIRAGUA</div>
+      <div id="gj-loader-msg" style="font-size:11px;letter-spacing:0.12em;">
+        CONECTANDO AL DWH · SUPABASE
+      </div>
+      <div style="display:flex;gap:6px;margin-top:4px;">
+        ${[0,1,2].map(i =>
+          `<div style="width:6px;height:6px;border-radius:50%;background:#2c5fa6;
+            animation:gjpulse 1.2s ease-in-out ${i*0.2}s infinite alternate;"></div>`
+        ).join('')}
+      </div>
+      <style>
+        @keyframes gjpulse {
+          from { opacity: 0.2; transform: scale(0.8); }
+          to   { opacity: 1;   transform: scale(1.1); }
+        }
+      </style>
+    </div>`;
+  document.body.appendChild(loader);
+
   function setMsg(msg) {
-    console.info('[Guajiragua]', msg);
+    const el = document.getElementById('gj-loader-msg');
+    if (el) el.textContent = msg;
+  }
+
+  function removeLoader() {
+    const el = document.getElementById('gj-loader');
+    if (el) el.remove();
   }
 
   /* ── Helpers de API (expuestos globalmente para otros módulos) ──────── */
@@ -173,11 +207,13 @@
         'color:#2e8b57;font-weight:bold'
       );
 
+      removeLoader();
       return true;
 
     } catch (err) {
       console.warn('[Guajiragua] API no disponible → usando datos estáticos.', err.message);
       window.GJ_API_LIVE = false;
+      removeLoader();
       return false;
     }
   })();
