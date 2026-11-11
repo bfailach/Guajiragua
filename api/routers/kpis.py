@@ -1,5 +1,6 @@
 """routers/kpis.py — KPIs globales"""
 
+import logging
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from database import get_client
@@ -41,5 +42,6 @@ def get_kpis(temporada: Optional[str] = Query(None, description="Seca | Húmeda"
             "iph":          iph,
             "ida":          ida,
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logging.exception("Error en /api/kpis")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")

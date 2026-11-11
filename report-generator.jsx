@@ -14,12 +14,20 @@ function getPeriodRange(periodo) {
   return null; // Personalizado → sin filtro de fecha
 }
 
+// Escapa texto antes de insertarlo en el HTML del reporte (evita inyección de scripts
+// si algún dato de la base contiene etiquetas HTML).
+function escHtml(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, tipoObj }) {
   const tagCls = e => e === 'Apta' ? 'apta' : e === 'Crítico' ? 'critico' : 'precaucion';
   const kpis = GJ.KPIS;
 
   const muniRows = muniStats.map(m =>
-    `<tr><td>${m.name}</td><td>${m.zona}</td><td>${m.n}</td>
+    `<tr><td>${escHtml(m.name)}</td><td>${escHtml(m.zona)}</td><td>${escHtml(m.n)}</td>
      <td>${m.ph.toFixed(2)}</td><td>${m.cond.toLocaleString('es-CO')}</td>
      <td>${m.sal.toFixed(2)}</td>
      <td><span class="tag critico">${m.criticos}</span></td>
@@ -32,10 +40,10 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
 
   const dataRows = sample.map(p =>
     `<tr>
-      <td class="mono">${p.id}</td>
-      <td>${p.muniName}</td><td>${p.tipo}</td><td>${p.temporada}</td>
-      <td><span class="tag ${tagCls(p.estado)}">${p.estado}</span></td>
-      ${varCols.map(c => `<td class="num">${p[c] != null ? p[c] : '—'}</td>`).join('')}
+      <td class="mono">${escHtml(p.id)}</td>
+      <td>${escHtml(p.muniName)}</td><td>${escHtml(p.tipo)}</td><td>${escHtml(p.temporada)}</td>
+      <td><span class="tag ${tagCls(p.estado)}">${escHtml(p.estado)}</span></td>
+      ${varCols.map(c => `<td class="num">${p[c] != null ? escHtml(p[c]) : '—'}</td>`).join('')}
     </tr>`
   ).join('');
 
@@ -47,7 +55,7 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
-<title>Guajiragua · ${tipoObj.name} · ${periodo}</title>
+<title>Guajiragua · ${escHtml(tipoObj.name)} · ${escHtml(periodo)}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Helvetica Neue',Arial,sans-serif;color:#111;font-size:10.5pt;line-height:1.5}
@@ -83,10 +91,10 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
 
 <div class="cover">
   <div class="eyebrow">Guajiragua · Sistema BI Hidrogeológico · SGC / Corpoguajira</div>
-  <h1>${tipoObj.name}</h1>
-  <div class="desc">${tipoObj.desc}</div>
+  <h1>${escHtml(tipoObj.name)}</h1>
+  <div class="desc">${escHtml(tipoObj.desc)}</div>
   <div class="meta">
-    <div class="meta-cell"><b>${periodo}</b><span>Periodo</span></div>
+    <div class="meta-cell"><b>${escHtml(periodo)}</b><span>Periodo</span></div>
     <div class="meta-cell"><b>${pts.length.toLocaleString('es-CO')}</b><span>Registros</span></div>
     <div class="meta-cell"><b>${muniStats.length}/${GJ.MUNICIPIOS.length}</b><span>Municipios</span></div>
     <div class="meta-cell"><b>${selectedVars.length}</b><span>Variables</span></div>

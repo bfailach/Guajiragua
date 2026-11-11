@@ -1,5 +1,6 @@
 """routers/alertas.py — Alertas activas"""
 
+import logging
 from fastapi import APIRouter, Query, HTTPException
 from database import get_client
 
@@ -31,8 +32,9 @@ def get_alertas(limit: int = Query(50, ge=1, le=500)):
             })
 
         return alertas
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logging.exception("Error en /api/alertas")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 
 def _body(r, sal, cond, ph):

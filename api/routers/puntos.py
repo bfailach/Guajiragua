@@ -1,5 +1,6 @@
 """routers/puntos.py — Puntos de monitoreo con filtros"""
 
+import logging
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from database import get_client
@@ -66,5 +67,6 @@ def get_puntos(
             })
 
         return {"total": len(data), "limit": limit, "offset": offset, "data": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logging.exception("Error en /api/puntos")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")

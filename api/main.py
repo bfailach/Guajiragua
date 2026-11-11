@@ -10,12 +10,14 @@ Docs interactivos:
     http://localhost:8000/docs
 """
 
+import logging
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from routers import kpis, puntos, municipios, alertas, series
+import auth
 from database import get_client
 
 load_dotenv()
@@ -30,19 +32,22 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-# Permite localhost (desarrollo) y cualquier subdominio de netlify.app (producción)
+# Solo los orígenes listados pueden llamar al API desde el navegador.
+# En producción se pueden añadir más con FRONTEND_ORIGINS (separados por coma).
+_origins = [
+    "http://localhost:3001",
+    "http://localhost:3000",
+    "http://127.0.0.1:3001",
+    "https://majestic-biscuit-1790f6.netlify.app",
+]
+_origins += [o.strip() for o in os.getenv("FRONTEND_ORIGINS", "").split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins       = [
-        "http://localhost:3001",
-        "http://localhost:3000",
-        "http://127.0.0.1:3001",
-        "https://majestic-biscuit-1790f6.netlify.app",
-    ],
-    allow_origin_regex  = r"https://.*\.netlify\.app",
-    allow_credentials   = True,
-    allow_methods       = ["*"],
-    allow_headers       = ["*"],
+    allow_origins     = _origins,
+    allow_credentials = False,          # la sesión viaja en la cabecera Authorization, no en cookies
+    allow_methods     = ["GET", "POST"],
+    allow_headers     = ["Authorization", "Content-Type"],
 )
 
 # ── Routers ───────────────────────────────────────────────────────────────────
@@ -51,6 +56,7 @@ app.include_router(puntos.router)
 app.include_router(municipios.router)
 app.include_router(alertas.router)
 app.include_router(series.router)
+app.include_router(auth.router)
 
 
 # ── Health check ──────────────────────────────────────────────────────────────
@@ -79,5 +85,6 @@ def health():
         res = client.rpc("get_kpis", {"p_temporada": None}).execute()
         total = (res.data or {}).get("total", 0)
         return {"status": "ok", "mediciones_en_db": total}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
+    except Exception:
+        logging.exception("health check falló")
+        return {"status": "error", "detail": "Base de datos no disponible"}

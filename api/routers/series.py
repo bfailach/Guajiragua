@@ -1,5 +1,6 @@
 """routers/series.py — Series temporales"""
 
+import logging
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from database import get_client
@@ -42,5 +43,6 @@ def get_series(variable: str, zona: Optional[str] = Query(None)):
             "base_seca": base_seca,
             "base_hum":  base_hum,
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logging.exception("Error en /api/series")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")

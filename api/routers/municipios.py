@@ -1,5 +1,6 @@
 """routers/municipios.py — Agregados por municipio"""
 
+import logging
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from database import get_client
@@ -13,5 +14,6 @@ def get_municipios(temporada: Optional[str] = Query(None)):
         client = get_client()
         res = client.rpc("get_municipios", {"p_temporada": temporada}).execute()
         return res.data or []
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logging.exception("Error en /api/municipios")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
