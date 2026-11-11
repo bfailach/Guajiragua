@@ -99,7 +99,10 @@ function SecTitle({ title, sub, right }) {
 }
 
 // ── KPI Card ─────────────────────────────────────────────────────
-function KpiCard({ label, value, unit, delta, deltaLabel, sparkData, color }) {
+// subirEsMalo: en indicadores como puntos críticos o deterioro, una subida se
+// muestra en rojo y una bajada en verde (la flecha sigue indicando la dirección).
+function KpiCard({ label, value, unit, delta, deltaLabel, sparkData, color, subirEsMalo }) {
+  const bueno = delta == null || delta === 0 ? null : (delta > 0) !== !!subirEsMalo;
   const stroke = color || '#2c5fa6';
   return (
     <div className="kpi">
@@ -110,7 +113,7 @@ function KpiCard({ label, value, unit, delta, deltaLabel, sparkData, color }) {
       </div>
       {sparkData && <Spark data={sparkData} stroke={stroke} />}
       <div className="kpi-foot">
-        <span className={'delta ' + (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat')}>
+        <span className={'delta ' + (bueno === null ? 'flat' : bueno ? 'up' : 'down')}>
           {delta > 0 ? '▲' : delta < 0 ? '▼' : '—'} {delta != null ? GJ.fmtNum(Math.abs(delta)) + '%' : ''}
         </span>
         <span>{deltaLabel}</span>
@@ -289,6 +292,13 @@ function Heatmap({ rows, cols, getValue, format = v => v, scale }) {
   rows.forEach(r => cols.forEach(c => allVals.push(getValue(r, c))));
   const min = scale?.min ?? Math.min(...allVals);
   const max = scale?.max ?? Math.max(...allVals);
+  // Texto blanco o negro según cuál contraste más con el color de la celda
+  const tinta = (v) => {
+    const [r, g, b] = lerp(v).match(/\d+/g).map(Number);
+    const f = x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); };
+    const L = 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+    return 1.05 / (L + 0.05) >= (L + 0.05) / 0.05 ? '#ffffff' : '#000000';
+  };
   const lerp = (v) => {
     const t = (v - min) / (max - min || 1);
     const stops = [
@@ -335,7 +345,7 @@ function Heatmap({ rows, cols, getValue, format = v => v, scale }) {
                 return (
                   <div key={c.key} style={{
                     background: lerp(v),
-                    color: t > 0.55 ? '#ffffff' : '#0f0f0f',
+                    color: tinta(v),
                     padding:'10px 4px', textAlign:'center', borderRadius:2,
                   }}>
                     <div className="mono tabular" style={{fontSize:13, fontWeight:500, lineHeight:1}}>
@@ -376,7 +386,7 @@ function Heatmap({ rows, cols, getValue, format = v => v, scale }) {
                 <td key={c.key} style={{textAlign:'center', padding:4}}>
                   <div style={{
                     background: lerp(v),
-                    color: (v - min)/(max - min || 1) > 0.55 ? '#ffffff' : '#0f0f0f',
+                    color: tinta(v),
                     padding: '12px 0',
                     fontFamily: 'SF Mono, ui-monospace, JetBrains Mono, Menlo, Monaco, monospace',
                     fontSize: 12,
@@ -426,7 +436,7 @@ function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c9
     grid.push(
       <g key={i}>
         <line x1={padL} y1={y} x2={w - padR} y2={y} stroke="#d8d8d8" strokeWidth="0.5" strokeDasharray="2 4" />
-        <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="9" fontFamily="JetBrains Mono, monospace" fill="#888888">{tickFormat ? tickFormat(v) : GJ.fmtNum(v, 2)}</text>
+        <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="9" fontFamily="JetBrains Mono, monospace" fill="#6b6b6b">{tickFormat ? tickFormat(v) : GJ.fmtNum(v, 2)}</text>
       </g>
     );
   }
@@ -451,7 +461,7 @@ function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c9
           {line(seriesB, colorB)}
         </g>
         {months.map((m, i) => (
-          <text key={m} x={padL + i * step} y={h - 8} textAnchor="middle" fontSize="9" fontFamily="JetBrains Mono, monospace" fill="#888888">{m}</text>
+          <text key={m} x={padL + i * step} y={h - 8} textAnchor="middle" fontSize="9" fontFamily="JetBrains Mono, monospace" fill="#6b6b6b">{m}</text>
         ))}
       </svg>
     </div>

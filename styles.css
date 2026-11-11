@@ -7,14 +7,14 @@
   --border-2: #cccccc;
   --text: #0f0f0f;
   --text-2: #555555;
-  --text-3: #8a8a8a;
+  --text-3: #6b6b6b;   /* 4,9:1 sobre el fondo; antes #8a8a8a (3,2:1) */
   --teal: #1a1a1a;       /* primary accent — near black */
   --teal-2: #4a4a4a;
   --ocre: #555555;       /* secondary */
   --ocre-2: #777777;
   --amber: #3a3a3a;
   --crit: #0f0f0f;       /* highest emphasis */
-  --good: #8a8a8a;
+  --good: #6b6b6b;
   --warn: #444444;
   --bad:  #0f0f0f;
 
@@ -221,8 +221,8 @@ input, select, textarea { font-family: inherit; color: inherit; }
   margin-top: auto;
 }
 .delta { display: inline-flex; align-items: center; gap: 4px; }
-.delta.up   { color: var(--c-green); }
-.delta.down { color: var(--c-red); }
+.delta.up   { color: #1d6b3f; }   /* verde más oscuro para texto pequeño (contraste ≥ 4,5:1) */
+.delta.down { color: #9a2f2c; }
 .delta.flat { color: var(--text-3); }
 
 .spark { height: 28px; width: 100%; }

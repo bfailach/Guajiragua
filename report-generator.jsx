@@ -81,9 +81,9 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
   .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
   .kpi{border:1px solid #e5e5e5;border-radius:4px;padding:14px 16px}
   .kpi .val{font-size:20pt;font-family:monospace;font-weight:300;color:#111}
-  .kpi .lbl{font-size:8pt;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-top:4px;font-family:monospace}
-  .note{font-size:8.5pt;color:#999;font-family:monospace;margin-top:10px;padding:8px 10px;border-left:2px solid #e0e0e0}
-  .footer{text-align:center;font-size:8pt;color:#aaa;padding:14px 32px;border-top:1px solid #e5e5e5;font-family:monospace;letter-spacing:.04em}
+  .kpi .lbl{font-size:8pt;text-transform:uppercase;letter-spacing:.1em;color:#6b6b6b;margin-top:4px;font-family:monospace}
+  .note{font-size:8.5pt;color:#6b6b6b;font-family:monospace;margin-top:10px;padding:8px 10px;border-left:2px solid #e0e0e0}
+  .footer{text-align:center;font-size:8pt;color:#6b6b6b;padding:14px 32px;border-top:1px solid #e5e5e5;font-family:monospace;letter-spacing:.04em}
   @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.cover{page-break-after:always}}
 </style>
 </head>

@@ -45,7 +45,7 @@
                           background-image: linear-gradient(90deg, #ececec 0px, #f7f7f7 120px, #ececec 240px);
                           background-size: 900px 100%; animation: gjs-shimmer 1.4s linear infinite; }
       #gj-loader .gjs-msg { font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace; font-size: 10px;
-                            letter-spacing: 0.14em; color: #8a8a8a; text-transform: uppercase; text-align: right; }
+                            letter-spacing: 0.14em; color: #6b6b6b; text-transform: uppercase; text-align: right; }
       @keyframes gjs-shimmer { from { background-position: -300px 0; } to { background-position: 600px 0; } }
       @media (prefers-reduced-motion: reduce) { #gj-loader .gjs-b { animation: none; } }
       @media (max-width: 1200px) {

@@ -63,7 +63,7 @@ function colorForMuni(agg, filter) {
 
 function tooltipHTML(m, a) {
   return `
-    <div class="tt-name">${m.name} · <span style="color:#888">${a.zona} Guajira</span></div>
+    <div class="tt-name">${m.name} · <span style="color:#6b6b6b">${a.zona} Guajira</span></div>
     <div class="tt-row"><span>Puntos</span><b>${a.n}</b></div>
     <div class="tt-row"><span>Activos</span><b>${a.activos}</b></div>
     <div class="tt-row"><span>pH promedio</span><b>${GJ.fmtNum(a.ph, 2)}</b></div>
@@ -202,7 +202,7 @@ function statusBoxStyle() {
     position:'absolute', top:8, right:8, zIndex:1000,
     background:'#ffffff', border:'1px solid #cccccc', borderRadius:3,
     padding:'6px 10px', fontFamily:'SF Mono, ui-monospace, JetBrains Mono, Menlo, Monaco, monospace',
-    fontSize:10, color:'#888', letterSpacing:'0.06em',
+    fontSize:10, color:'#6b6b6b', letterSpacing:'0.06em',
   };
 }
 

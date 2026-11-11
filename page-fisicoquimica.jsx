@@ -94,8 +94,8 @@ function PageFisicoquimica() {
                  value={activos.toLocaleString('es-CO')}
                  unit={'/ ' + pts.length.toLocaleString('es-CO')}
                  delta={dActivos}
-                 deltaLabel={eLbl}
-                 sparkData={epochRef ? makeSpark(epochRef.activos, activos) : null}
+                 deltaLabel={eLbl && '% activos ' + eLbl}
+                 sparkData={epochRef ? makeSpark(epochRef.cobertura, cobertura) : null}
                  color="#2c5fa6" />
         <KpiCard label="pH promedio"
                  value={GJ.fmtNum(ph, 2)}
@@ -103,11 +103,11 @@ function PageFisicoquimica() {
                  deltaLabel={eLbl}
                  sparkData={epochRef ? makeSpark(epochRef.ph, ph) : null}
                  color="#3a8580" />
-        <KpiCard label="Puntos críticos"
+        <KpiCard label="Puntos críticos" subirEsMalo
                  value={criticos.toLocaleString('es-CO')}
                  delta={dCrit}
-                 deltaLabel={eLbl}
-                 sparkData={epochRef ? makeSpark(epochRef.criticos, criticos) : null}
+                 deltaLabel={eLbl && '% críticos ' + eLbl}
+                 sparkData={epochRef ? makeSpark(epochRef.critPct, critSecaPct) : null}
                  color="#b5403d" />
         <KpiCard label="Cobertura hídrica"
                  value={GJ.fmtNum(cobertura, 1)}

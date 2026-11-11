@@ -181,9 +181,9 @@ function PageTendencias() {
           <SecTitle title="KPIs estratégicos" sub="4 INDICADORES" />
           <div className="grid" style={{gridTemplateColumns:'1fr 1fr', gap:12, marginTop:8}}>
             <KpiCard label="IPH · Potabilidad"      value={GJ.fmtNum(iphVal)}     delta={dIPH}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(iphHum,       iphSeca)}       color="#2e8b57" />
-            <KpiCard label="IDA · Deterioro acuífero" value={GJ.fmtNum(idaVal)}     delta={dIDA}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(idaHum,       idaSeca)}       color="#b5403d" />
+            <KpiCard label="IDA · Deterioro acuífero" subirEsMalo value={GJ.fmtNum(idaVal)}     delta={dIDA}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(idaHum,       idaSeca)}       color="#b5403d" />
             <KpiCard label="Variación salinidad"      value={GJ.fmtNum(varSalPct)}  unit="%"  delta={null} deltaLabel="amplitud anual"    sparkData={mkSpark(salVl,        salPk)}         color="#c97a2b" />
-            <KpiCard label="Tasa puntos críticos"     value={GJ.fmtNum(tasaCrit)}   unit="%"  delta={dTasa} deltaLabel="vs época seca"   sparkData={mkSpark(tasaCritSeca, tasaCrit)}     color="#b5403d" />
+            <KpiCard label="Tasa puntos críticos" subirEsMalo     value={GJ.fmtNum(tasaCrit)}   unit="%"  delta={dTasa} deltaLabel="vs época seca"   sparkData={mkSpark(tasaCritSeca, tasaCrit)}     color="#b5403d" />
           </div>
 
           <hr className="div" />
