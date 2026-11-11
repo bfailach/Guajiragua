@@ -54,12 +54,38 @@ function AppFooter() {
   );
 }
 
+// ── Rutas (definidas en components.jsx): #/, #/fisicoquimica, #/alertas, …
+// Así funcionan el botón Atrás, recargar la página y compartir un enlace.
+const RUTAS = window.GJ_RUTAS;
+
+function paginaDesdeHash() {
+  const h = (window.location.hash || '#/').replace(/\/+$/, '') || '#';
+  const id = Object.keys(RUTAS).find(k => RUTAS[k].hash.replace(/\/+$/, '') === h);
+  return id || 'inicio';
+}
+
 function App() {
-  const [page, setPage] = useState('inicio');
+  const [page, setPageState] = useState(paginaDesdeHash);
   const [ready, setReady] = useState(false);
 
-  // Al cambiar de pestaña, volver al principio de la página
-  useEffect(() => { window.scrollTo(0, 0); }, [page]);
+  // Cambiar de sección = cambiar la dirección; el historial del navegador
+  // registra cada paso, así que Atrás vuelve a la sección anterior.
+  function setPage(id) {
+    const destino = RUTAS[id] ? RUTAS[id].hash : '#/';
+    if (window.location.hash !== destino) window.location.hash = destino;
+    else setPageState(id);
+  }
+  useEffect(() => {
+    const alCambiar = () => setPageState(paginaDesdeHash());
+    window.addEventListener('hashchange', alCambiar);
+    return () => window.removeEventListener('hashchange', alCambiar);
+  }, []);
+
+  // Al cambiar de sección: título de la pestaña y volver al principio
+  useEffect(() => {
+    document.title = (RUTAS[page] || RUTAS.inicio).titulo;
+    window.scrollTo(0, 0);
+  }, [page]);
 
   // Retira el esqueleto de carga cuando la app ya está en pantalla
   useEffect(() => { if (ready && window.GJ_HIDE_LOADER) window.GJ_HIDE_LOADER(); }, [ready]);
@@ -86,7 +112,7 @@ function App() {
 
   return (
     <div className="app" data-screen-label={'Guajiragua · ' + page}>
-      <TopNav page={page} setPage={setPage} />
+      <TopNav page={page} />
       {body}
       <AppFooter />
       <ToastStack />

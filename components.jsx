@@ -12,7 +12,16 @@ function conMu(text) {
 }
 window.conMu = conMu;
 
-function TopNav({ page, setPage }) {
+// ── Rutas: cada sección tiene su propia dirección ────────────────────────────
+window.GJ_RUTAS = {
+  inicio:  { hash: '#/',               titulo: 'Guajiragua · Calidad del agua en La Guajira' },
+  fisico:  { hash: '#/fisicoquimica',  titulo: 'Información fisicoquímica · Guajiragua' },
+  tend:    { hash: '#/tendencias',     titulo: 'Análisis de tendencias · Guajiragua' },
+  alertas: { hash: '#/alertas',        titulo: 'Alertas · Guajiragua' },
+  admin:   { hash: '#/administracion', titulo: 'Administración · Guajiragua' },
+};
+
+function TopNav({ page }) {
   const left = [
     { id: 'fisico',    label: 'Información fisicoquímica' },
     { id: 'tend',      label: 'Análisis de tendencias' },
@@ -31,31 +40,28 @@ function TopNav({ page, setPage }) {
     else nav.scrollTo({ left: 0, behavior: 'smooth' });
   }, [page]);
 
+  const ruta = id => (window.GJ_RUTAS[id] || window.GJ_RUTAS.inicio).hash;
+  const item = n => (
+    <a key={n.id} href={ruta(n.id)}
+       className={'nav-item' + (page === n.id ? ' active' : '')}
+       aria-current={page === n.id ? 'page' : undefined}>
+      {n.label}
+    </a>
+  );
+
   return (
     <nav className="topnav" ref={navRef} aria-label="Secciones">
-      {left.map(n => (
-        <button key={n.id}
-          className={'nav-item' + (page === n.id ? ' active' : '')}
-          onClick={() => setPage(n.id)}>
-          {n.label}
-        </button>
-      ))}
+      {left.map(item)}
       {/* El nombre lleva a la página de inicio */}
-      <button className={'brand' + (page === 'inicio' ? ' active' : '')}
-              onClick={() => setPage('inicio')}
-              aria-label="Guajiragua, inicio"
-              aria-current={page === 'inicio' ? 'page' : undefined}>
+      <a href={ruta('inicio')}
+         className={'brand' + (page === 'inicio' ? ' active' : '')}
+         aria-label="Guajiragua, inicio"
+         aria-current={page === 'inicio' ? 'page' : undefined}>
         <div className="brand-mark">
           <span className="brand-name">GUAJIRAGUA</span>
         </div>
-      </button>
-      {right.map(n => (
-        <button key={n.id}
-          className={'nav-item' + (page === n.id ? ' active' : '')}
-          onClick={() => setPage(n.id)}>
-          {n.label}
-        </button>
-      ))}
+      </a>
+      {right.map(item)}
     </nav>
   );
 }
@@ -149,7 +155,7 @@ function Spark({ data, stroke = '#2c5fa6', height = 28, fill = false }) {
 // ── Chip ─────────────────────────────────────────────────────────
 function Chip({ active, onClick, children, dot }) {
   return (
-    <button className={'chip' + (active ? ' active' : '')} onClick={onClick}>
+    <button className={'chip' + (active ? ' active' : '')} onClick={onClick} aria-pressed={!!active}>
       {dot && <span className="dot" style={{background: dot}} />}
       {children}
     </button>
@@ -163,6 +169,7 @@ function Seg({ options, value, onChange }) {
       {options.map(o => (
         <button key={o.value || o}
           className={value === (o.value || o) ? 'on' : ''}
+          aria-pressed={value === (o.value || o)}
           onClick={() => onChange(o.value || o)}>
           {o.label || o}
         </button>

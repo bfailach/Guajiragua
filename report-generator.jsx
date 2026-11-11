@@ -387,6 +387,7 @@ function ReportGenerator() {
             {Object.keys(filterMap).map(f => (
               <button key={f}
                 className={'chip' + (recentFilter === f ? ' active' : '')}
+                aria-pressed={recentFilter === f}
                 style={{padding:'5px 10px', fontSize:11}}
                 onClick={() => setRecentFilter(f)}>
                 {f}
@@ -458,6 +459,7 @@ function ReportGenerator() {
                   const sel = tipo === t.id;
                   return (
                     <button key={t.id}
+                      aria-pressed={sel}
                       onClick={() => selectType(t)}
                       style={{
                         textAlign:'left', padding:'12px 14px',
@@ -484,6 +486,7 @@ function ReportGenerator() {
                 {PERIODOS.map(p => (
                   <button key={p}
                     className={'chip' + (periodo === p ? ' active' : '')}
+                    aria-pressed={periodo === p}
                     onClick={() => setPeriodo(p)}
                     style={{padding:'7px 12px', fontSize:12}}>
                     {p}
@@ -511,6 +514,7 @@ function ReportGenerator() {
                 {GJ.MUNICIPIOS.map(m => (
                   <button key={m.id}
                     className={'chip' + (municipios.has(m.id) ? ' active' : '')}
+                    aria-pressed={municipios.has(m.id)}
                     onClick={() => toggle(municipios, m.id, setMunicipios)}
                     style={{padding:'6px 10px', fontSize:11}}>
                     {m.name}
@@ -569,6 +573,7 @@ function ReportGenerator() {
                 const sel = formato === f.id;
                 return (
                   <button key={f.id}
+                    aria-pressed={sel}
                     onClick={() => setFormato(f.id)}
                     style={{
                       display:'flex', justifyContent:'space-between', alignItems:'center',
@@ -635,8 +640,9 @@ function FormGroup({ label, right, children }) {
 
 function CheckRow({ label, checked, onChange }) {
   return (
-    <label style={{display:'flex', alignItems:'center', gap:10, cursor:'pointer', fontSize:12.5, color:'var(--text)', padding:'2px 0'}}>
-      <span style={{
+    <label className="check-row" style={{display:'flex', alignItems:'center', gap:10, cursor:'pointer', fontSize:12.5, color:'var(--text)', padding:'2px 0'}}>
+      <input type="checkbox" className="sr-only" checked={checked} onChange={onChange} />
+      <span aria-hidden="true" style={{
         width:14, height:14,
         border:'1px solid ' + (checked ? '#0f0f0f' : 'var(--border-2)'),
         background: checked ? '#0f0f0f' : 'transparent',
@@ -645,7 +651,6 @@ function CheckRow({ label, checked, onChange }) {
       }}>
         {checked ? '✓' : ''}
       </span>
-      <input type="checkbox" checked={checked} onChange={onChange} style={{display:'none'}}/>
       {label}
     </label>
   );

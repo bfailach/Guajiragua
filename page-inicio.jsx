@@ -332,7 +332,7 @@ function PageInicio({ setPage }) {
 
       <p className="mono" style={{ margin: '24px 0 0', fontSize: 11, color: 'var(--text-3)', lineHeight: 1.7 }}>
         DATOS: SERVICIO GEOLÓGICO COLOMBIANO Y CORPOGUAJIRA. PARA EL DETALLE TÉCNICO, CONSULTA{' '}
-        <button className="mono" onClick={() => setPage('fisico')} style={{ background: 'none', border: 'none', padding: 0, fontSize: 11, color: 'var(--text)', textDecoration: 'underline', cursor: 'pointer' }}>INFORMACIÓN FISICOQUÍMICA</button>.
+        <a className="mono" href={GJ_RUTAS.fisico.hash} style={{ fontSize: 11, color: 'var(--text)', textDecoration: 'underline' }}>INFORMACIÓN FISICOQUÍMICA</a>.
       </p>
     </>
   );

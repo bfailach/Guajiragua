@@ -286,6 +286,7 @@ function PageAdmin() {
           <button
             key={t.id}
             className={'nav-item' + (subTab === t.id ? ' active' : '')}
+            aria-pressed={subTab === t.id}
             style={{padding:'6px 18px', fontSize:12}}
             onClick={() => setSubTab(t.id)}>
             {t.label}

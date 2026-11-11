@@ -139,6 +139,7 @@ function PageFisicoquimica() {
                         if (b.id === 'ep')   setTemporada(o);
                       }}
                       className={'chip' + (isOn ? ' active' : '')}
+                      aria-pressed={isOn}
                       style={{padding:'4px 10px', fontSize:11}}>
                       {o}
                     </button>
@@ -215,7 +216,7 @@ function PageFisicoquimica() {
           </div>
           {GJ.ALERTS.length > 30 && (
             <div className="mono" style={{fontSize:10, color:'var(--text-2)', marginTop:10, letterSpacing:'0.06em'}}>
-              LAS 30 MÁS GRAVES DE {GJ.ALERTS.length.toLocaleString('es-CO')} · LISTA COMPLETA EN LA PESTAÑA ALERTAS
+              LAS 30 MÁS GRAVES DE {GJ.ALERTS.length.toLocaleString('es-CO')} · <a href={GJ_RUTAS.alertas.hash} style={{color:'var(--text)'}}>VER LISTA COMPLETA</a>
             </div>
           )}
         </div>
@@ -226,9 +227,9 @@ function PageFisicoquimica() {
                     sub={`${GJ.MUNICIPIOS.length} municipios`}
                     right={
                       <div className="flex" style={{gap:6}}>
-                        <button className={'chip' + (mapFilter==='estado'?' active':'')} onClick={()=>setMapFilter('estado')} style={{padding:'4px 10px', fontSize:11}}>Estado</button>
-                        <button className={'chip' + (mapFilter==='sal'?' active':'')}    onClick={()=>setMapFilter('sal')}    style={{padding:'4px 10px', fontSize:11}}>Salinidad</button>
-                        <button className={'chip' + (mapFilter==='cond'?' active':'')}   onClick={()=>setMapFilter('cond')}   style={{padding:'4px 10px', fontSize:11}}>Cond.</button>
+                        <button aria-pressed={mapFilter==='estado'} className={'chip' + (mapFilter==='estado'?' active':'')} onClick={()=>setMapFilter('estado')} style={{padding:'4px 10px', fontSize:11}}>Estado</button>
+                        <button aria-pressed={mapFilter==='sal'} className={'chip' + (mapFilter==='sal'?' active':'')}    onClick={()=>setMapFilter('sal')}    style={{padding:'4px 10px', fontSize:11}}>Salinidad</button>
+                        <button aria-pressed={mapFilter==='cond'} className={'chip' + (mapFilter==='cond'?' active':'')}   onClick={()=>setMapFilter('cond')}   style={{padding:'4px 10px', fontSize:11}}>Cond.</button>
                       </div>
                     } />
           <div style={{marginTop:8}}>

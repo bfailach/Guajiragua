@@ -51,6 +51,16 @@ La bodega de datos sigue la metodología de modelado dimensional de Kimball.
 
 Mientras carga, la app muestra un esqueleto con la estructura de la página. Al iniciar, el frontend consulta `GET /api/health` y descarga las mediciones paginadas desde `GET /api/puntos`. Si la API no responde en 35 segundos (margen para el arranque en frío del plan gratuito de Render), usa la copia estática `real-data.js` e indica el modo en el pie de página (`SUPABASE · LIVE` u `OFFLINE · DATOS ESTÁTICOS`).
 
+Cada sección tiene su propia dirección, así que el botón Atrás, recargar y compartir un enlace funcionan:
+
+| Ruta | Sección |
+|------|---------|
+| `#/` | Página de inicio |
+| `#/fisicoquimica` | Información fisicoquímica |
+| `#/tendencias` | Análisis de tendencias |
+| `#/alertas` | Alertas |
+| `#/administracion` | Administración (requiere inicio de sesión) |
+
 ## Página de inicio
 
 Es la página que se abre al entrar, y se vuelve a ella tocando el nombre GUAJIRAGUA en la barra superior. Está dirigida a los habitantes de La Guajira y usa el mismo diseño que el resto de la aplicación:
