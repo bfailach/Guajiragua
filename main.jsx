@@ -75,7 +75,7 @@ function App() {
   if (page === 'fisico')  body = <PageFisicoquimica />;
   if (page === 'tend')    body = <PageTendencias />;
   if (page === 'alertas') body = <PageAlertas />;
-  if (page === 'admin')   body = <PageAdmin />;
+  if (page === 'admin')   body = <AdminGate><PageAdmin /></AdminGate>;
 
   return (
     <div className="app" data-screen-label={'Guajiragua · ' + page}>

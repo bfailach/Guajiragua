@@ -4,9 +4,18 @@ services:
     runtime: python
     rootDir: api
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    # --proxy-headers: toma la IP real del visitante (para el límite de intentos de login)
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips "*"
     envVars:
       - key: SUPABASE_URL
         sync: false          # se ingresa manualmente en el dashboard de Render
       - key: SUPABASE_KEY
-        sync: false          # se ingresa manualmente en el dashboard de Render
+        sync: false
+      - key: ADMIN_USER
+        sync: false          # generar con: python crear_admin.py
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true  # Render genera una clave aleatoria
+      - key: AUTH_TTL_MIN
+        value: "60"

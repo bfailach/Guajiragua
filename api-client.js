@@ -66,11 +66,15 @@
     },
 
     async post(path, body) {
+      const headers = { 'Content-Type': 'application/json' };
+      const token = window.GJ_AUTH && window.GJ_AUTH.token();
+      if (token) headers['Authorization'] = 'Bearer ' + token;
       const res = await fetch(API_BASE + path, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body:    JSON.stringify(body),
       });
+      if (res.status === 401 && window.GJ_AUTH) window.GJ_AUTH.logout();
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     },
@@ -93,6 +97,73 @@
     async alertas(limit = 50) {
       return this.get(`/api/alertas?limit=${limit}`);
     },
+  };
+
+  /* ── Sesión administrativa ──────────────────────────────────────────── */
+  // El token se guarda en sessionStorage: se borra al cerrar la pestaña.
+  const AUTH_KEY = 'gj_admin_session';
+  const listeners = new Set();
+
+  function readSession() {
+    try {
+      const s = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null');
+      if (s && s.token && s.expira * 1000 > Date.now()) return s;
+      sessionStorage.removeItem(AUTH_KEY);
+    } catch (e) { /* sessionStorage no disponible */ }
+    return null;
+  }
+
+  function notify() { listeners.forEach(fn => { try { fn(readSession()); } catch (e) {} }); }
+
+  window.GJ_AUTH = {
+    session() { return readSession(); },
+    token()   { const s = readSession(); return s ? s.token : null; },
+
+    async login(usuario, contrasena) {
+      let res;
+      try {
+        res = await fetch(API_BASE + '/api/auth/login', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ usuario, contrasena }),
+        });
+      } catch (e) {
+        throw new Error('No se pudo conectar con el servidor.');
+      }
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+      if (!res.ok) {
+        const msg = typeof data.detail === 'string' ? data.detail : 'No se pudo iniciar sesión.';
+        throw new Error(msg);
+      }
+      const s = { token: data.token, usuario: data.usuario, expira: data.expira };
+      try { sessionStorage.setItem(AUTH_KEY, JSON.stringify(s)); } catch (e) {}
+      notify();
+      return s;
+    },
+
+    // Confirma con el servidor que el token sigue siendo válido
+    async verify() {
+      const token = this.token();
+      if (!token) return null;
+      try {
+        const res = await fetch(API_BASE + '/api/auth/me', {
+          headers: { 'Authorization': 'Bearer ' + token },
+        });
+        if (res.status === 401 || res.status === 503) { this.logout(); return null; }
+        if (!res.ok) return readSession();   // error transitorio: se conserva la sesión local
+        return readSession();
+      } catch (e) {
+        return readSession();
+      }
+    },
+
+    logout() {
+      try { sessionStorage.removeItem(AUTH_KEY); } catch (e) {}
+      notify();
+    },
+
+    onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
   };
 
   /* ── Cargar puntos desde API ────────────────────────────────────────── */
