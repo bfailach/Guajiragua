@@ -235,7 +235,6 @@ const ACTORS = [
   { code:'IDM', name:'IDEAM',                     role:'Datos meteo/hídricos' },
   { code:'SGC', name:'Servicio Geológico',        role:'Hidrogeología técnica' },
   { code:'DEF', name:'Defensoría del Pueblo',     role:'Derecho al agua' },
-  { code:'UMB', name:'Ing. Software UMB',         role:'Implementación BI' },
 ];
 
   window.GJ = {

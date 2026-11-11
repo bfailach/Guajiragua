@@ -4,12 +4,12 @@ Sistema de inteligencia de negocios para el monitoreo de la calidad del agua sub
 
 Integra 1.735 mediciones fisicoquímicas de pozos, aljibes y manantiales de 11 municipios en una bodega de datos con modelo estrella. Las expone mediante una API REST y las presenta en un tablero web con mapa, tendencias estacionales, alertas por umbral y generación de reportes. Incluye una página de inicio con información en lenguaje sencillo para los habitantes de La Guajira.
 
-Proyecto académico del programa de Ingeniería de Negocios de la Universidad Manuela Beltrán (UMB), desarrollado con la metodología de bodegas de datos de Kimball.
+La bodega de datos sigue la metodología de modelado dimensional de Kimball.
 
 - Aplicación: https://majestic-biscuit-1790f6.netlify.app
 - API: https://guajiragua.onrender.com (documentación interactiva en `/docs`)
 
-![Información fisicoquímica](docs/capturas/01-fisicoquimica.jpg)
+![Página de inicio](docs/capturas/00-inicio.jpg)
 
 ## Contenido
 
@@ -171,7 +171,6 @@ Indicadores principales:
 │   └── etl_guajira.py       Pipeline ETL de referencia (extracción, transformación, carga a Excel)
 └── docs/
     ├── modelo/              Diagrama del modelo estrella (draw.io y HTML)
-    ├── academico/           Generadores de los entregables académicos (.docx, .pptx)
     └── capturas/
 ```
 
@@ -289,7 +288,9 @@ def crear_medicion(...):
 
 | | |
 |---|---|
+| ![Información fisicoquímica](docs/capturas/01-fisicoquimica.jpg) | ![Inicio de sesión](docs/capturas/04-inicio-sesion.jpg) |
+| Información fisicoquímica | Inicio de sesión administrativo |
 | ![Análisis de tendencias](docs/capturas/02-tendencias.jpg) | ![Centro de alertas](docs/capturas/03-alertas.jpg) |
 | Análisis de tendencias | Centro de alertas |
-| ![Inicio de sesión](docs/capturas/04-inicio-sesion.jpg) | ![Administración](docs/capturas/05-administracion.jpg) |
-| Inicio de sesión administrativo | Administración de puntos de monitoreo |
+| ![Administración](docs/capturas/05-administracion.jpg) | |
+| Administración de puntos de monitoreo | |

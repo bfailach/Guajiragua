@@ -176,14 +176,14 @@ function ReportGenerator() {
   const [generating, setGenerating]   = useState(null); // null | 'progress' | 'done' | 'error'
 
   const [allRecents, setAllRecents] = useState([
-    { id:'RP-2026-0014', title:'Calidad fisicoquímica · marzo 2026',    tipo:'calidad',   fmt:'PDF',  fecha:'2026-04-01 02:08', user:'bsfailach@umb',    size:'14.3 MB' },
+    { id:'RP-2026-0014', title:'Calidad fisicoquímica · marzo 2026',    tipo:'calidad',   fmt:'PDF',  fecha:'2026-04-01 02:08', user:'admin',            size:'14.3 MB' },
     { id:'RP-2026-0013', title:'Alertas IPH<50 · semana 13',            tipo:'alertas',   fmt:'PDF',  fecha:'2026-03-29 02:04', user:'corpoguajira.bi', size:'8.1 MB'  },
     { id:'RP-2026-0012', title:'Cobertura captadores · Q1 2026',        tipo:'cobertura', fmt:'XLSX', fecha:'2026-03-27 02:05', user:'monitoreo@ideam', size:'6.4 MB'  },
-    { id:'RP-2026-0011', title:'Tendencia salinidad · feb-mar',         tipo:'sostenib',  fmt:'PDF',  fecha:'2026-03-22 02:03', user:'bsfailach@umb',    size:'11.8 MB' },
-    { id:'RP-2026-0010', title:'Exportación FACT_MEDICION_HIDRICA · Q1',tipo:'custom',    fmt:'CSV',  fecha:'2026-03-15 02:02', user:'bsfailach@umb',    size:'2.6 MB'  },
+    { id:'RP-2026-0011', title:'Tendencia salinidad · feb-mar',         tipo:'sostenib',  fmt:'PDF',  fecha:'2026-03-22 02:03', user:'admin',            size:'11.8 MB' },
+    { id:'RP-2026-0010', title:'Exportación FACT_MEDICION_HIDRICA · Q1',tipo:'custom',    fmt:'CSV',  fecha:'2026-03-15 02:02', user:'admin',            size:'2.6 MB'  },
     { id:'RP-2026-0009', title:'Calidad fisicoquímica · febrero 2026',  tipo:'calidad',   fmt:'PDF',  fecha:'2026-03-01 02:08', user:'corpoguajira.bi', size:'13.7 MB' },
     { id:'RP-2026-0008', title:'Alertas críticas · enero 2026',         tipo:'alertas',   fmt:'PDF',  fecha:'2026-02-04 02:05', user:'corpoguajira.bi', size:'7.9 MB'  },
-    { id:'RP-2026-0007', title:'Sostenibilidad acuífero · 2025 anual',  tipo:'sostenib',  fmt:'XLSX', fecha:'2026-01-08 02:08', user:'bsfailach@umb',    size:'24.1 MB' },
+    { id:'RP-2026-0007', title:'Sostenibilidad acuífero · 2025 anual',  tipo:'sostenib',  fmt:'XLSX', fecha:'2026-01-08 02:08', user:'admin',            size:'24.1 MB' },
   ]);
 
   const selectedType = REPORT_TYPES.find(t => t.id === tipo);
@@ -360,7 +360,7 @@ function ReportGenerator() {
             tipo:  capturedTipo,
             fmt:   capturedFormato.toUpperCase(),
             fecha: new Date().toISOString().slice(0, 16).replace('T', ' '),
-            user:  'bsfailach@umb',
+            user:  (window.GJ_AUTH && window.GJ_AUTH.session() && window.GJ_AUTH.session().usuario) || 'admin',
             size:  capturedSizeMb + ' MB',
           }, ...prev];
         });

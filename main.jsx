@@ -47,7 +47,7 @@ function AppFooter() {
           GUAJIRAGUA v1.0 · Sistema BI Hidrogeológico
         </span>
         <span className="mono" style={{fontSize:9, color:'var(--text-3)'}}>
-          UMB · Ingeniería de Negocios · {new Date().getFullYear()}
+          La Guajira, Colombia · {new Date().getFullYear()}
         </span>
       </div>
     </footer>

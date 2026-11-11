@@ -1,6 +1,6 @@
 """
 main.py — FastAPI · Sistema BI Hidrogeológico Guajiragua
-Metodología Kimball DWH · UMB · Ing. de Negocios
+Bodega de datos con modelado dimensional (Kimball)
 
 Ejecutar:
     cd api

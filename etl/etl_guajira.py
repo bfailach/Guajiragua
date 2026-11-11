@@ -2,7 +2,7 @@
 etl_guajira.py
 ==============
 Pipeline ETL — Sistema BI Hidrogeológico · La Guajira
-Metodología Kimball · Fase 2 del Proyecto Final (UMB · Ing. de Negocios)
+Modelado dimensional (Kimball): extracción, transformación y carga
 
 Flujo:
   FUENTE (CSV / Excel)  →  EXTRACCIÓN  →  TRANSFORMACIÓN  →  CARGA (DWH)
