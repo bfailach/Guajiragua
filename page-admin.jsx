@@ -1,13 +1,16 @@
 // Página de Administración — tabla de los 1.702 puntos + acciones técnicas
 
 // ── CSV Export ───────────────────────────────────────────────
+// Un valor ausente se exporta como celda vacía
+const csvNum = (v, d) => v == null ? '' : (d == null ? String(v) : Number(v).toFixed(d));
+
 function exportCSV(pts) {
   const headers = ['ID','Municipio','Zona','Tipo','Uso','Metodo',
     'pH','Cond_uS_cm','Sal_mS_cm','Temp_C','STD_mg_L','Prof_m',
     'Temporada','Estado','Activo','Fecha'];
   const rows = pts.map(p => [
     p.id, p.muniName, p.zona, p.tipo, p.uso, p.metodo,
-    p.ph, p.cond, p.sal.toFixed(3), p.temp, p.std, p.prof.toFixed(1),
+    p.ph, p.cond, csvNum(p.sal, 3), csvNum(p.temp), csvNum(p.std), csvNum(p.prof, 1),
     p.temporada, p.estado, p.activo ? '1' : '0', p.fecha,
   ]);
   const csv = [headers, ...rows].map(r => r.join(';')).join('\r\n');
@@ -38,10 +41,10 @@ function DetailModal({ point, onClose }) {
   const metrics = [
     { label:'pH',           value: point.ph,          unit:'',         warn: !phOk },
     { label:'Conductividad',value: point.cond.toLocaleString('es-CO'), unit:'µS/cm', warn: point.cond > 2500 },
-    { label:'Salinidad',    value: point.sal.toFixed(3), unit:'mS/cm', warn: point.sal > 2.0 },
-    { label:'Temperatura',  value: point.temp,         unit:'°C',      warn: false },
-    { label:'STD',          value: point.std.toLocaleString('es-CO'),  unit:'mg/L',  warn: point.std > 5000 },
-    { label:'Profundidad',  value: point.prof.toFixed(1), unit:'m',    warn: false },
+    { label:'Salinidad',    value: GJ.fmtNum(point.sal, 3), unit:'mS/cm', warn: point.sal > 2.0 },
+    { label:'Temperatura',  value: GJ.fmtNum(point.temp), unit:'°C',      warn: false },
+    { label:'STD',          value: GJ.fmtMiles(point.std),  unit:'mg/L',  warn: point.std > 5000 },
+    { label:'Profundidad',  value: GJ.fmtNum(point.prof, 1), unit:'m',    warn: false },
   ];
   return (
     <Modal
@@ -94,12 +97,9 @@ function DetailModal({ point, onClose }) {
           </div>
           {point.estado !== 'Apta' && (
             <div style={{marginTop:14, padding:'10px 12px', background:'rgba(181,64,61,0.05)', border:'1px solid rgba(181,64,61,0.2)', borderRadius:3}}>
-              <div className="mono" style={{fontSize:10, color:'#b5403d', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:4}}>PARÁMETROS FUERA DE NORMA</div>
+              <div className="mono" style={{fontSize:10, color:'#b5403d', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:4}}>CRITERIOS QUE DETERMINAN EL ESTADO</div>
               <div className="mono" style={{fontSize:11, color:'var(--text-2)'}}>
-                {!phOk && <div>· pH {point.ph} fuera del rango 6.5–8.5</div>}
-                {point.sal > 2.0 && <div>· Salinidad {point.sal.toFixed(3)} mS/cm &gt; 2.0</div>}
-                {point.cond > 2500 && <div>· Conductividad {point.cond.toLocaleString('es-CO')} µS/cm &gt; 2500</div>}
-                {point.std > 5000 && <div>· STD {point.std.toLocaleString('es-CO')} mg/L &gt; 5000</div>}
+                {GJ.motivosEstado(point).map((m, i) => <div key={i}>· {m.txt} ({m.sev.toLowerCase()})</div>)}
               </div>
             </div>
           )}
@@ -161,7 +161,12 @@ function NuevoPuntoModal({ onClose, onSave }) {
         temp: parseFloat(parseFloat(form.temp).toFixed(1)),
         std: Math.round(parseFloat(form.std)),
         prof: parseFloat(parseFloat(form.prof).toFixed(1)),
-        estado: 'Apta', activo: true,
+        estado: GJ.clasificarEstado({
+          ph:   parseFloat(form.ph),
+          cond: parseFloat(form.cond),
+          sal:  parseFloat(form.sal),
+        }),
+        activo: true,
         fecha: new Date().toISOString().slice(0, 10),
       });
       setSaving(false);
@@ -367,10 +372,10 @@ function PageAdmin() {
                   <td>{p.tipo}</td>
                   <td className="num"><span className="mono">{p.ph}</span></td>
                   <td className="num"><span className="mono">{p.cond.toLocaleString('es-CO')}</span></td>
-                  <td className="num"><span className="mono">{p.sal.toFixed(2)}</span></td>
-                  <td className="num"><span className="mono">{p.temp}</span></td>
-                  <td className="num"><span className="mono">{p.std.toLocaleString('es-CO')}</span></td>
-                  <td className="num"><span className="mono">{p.prof}</span></td>
+                  <td className="num"><span className="mono">{GJ.fmtNum(p.sal, 2)}</span></td>
+                  <td className="num"><span className="mono">{GJ.fmtNum(p.temp)}</span></td>
+                  <td className="num"><span className="mono">{GJ.fmtMiles(p.std)}</span></td>
+                  <td className="num"><span className="mono">{GJ.fmtNum(p.prof)}</span></td>
                   <td><span className="mono" style={{color:'var(--text-2)', fontSize:11}}>{p.temporada}</span></td>
                   <td><StatusPill estado={p.estado} /></td>
                   <td style={{textAlign:'right', color:'var(--text-3)'}}>›</td>

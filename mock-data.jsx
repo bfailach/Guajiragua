@@ -20,9 +20,53 @@ const TIPOS   = ['Pozo', 'Aljibe', 'Manantial'];
 const METODOS = ['Sonda multiparámetro', 'Conductivímetro', 'pHmetro portátil', 'Refractómetro'];
 const USOS    = ['Doméstico', 'Agropecuario', 'Industrial', 'Ecosistémico'];
 
+// ── Clasificación de calidad ─────────────────────────────────────────────────
+// Misma regla que api/calidad.py (referencia del sistema). Si se cambia un
+// umbral, debe cambiarse en ambos lugares. Un valor ausente no activa criterios.
+const UMBRALES = {
+  critico:    { condMax: 5000, salMax: 4.0, phMin: 6.0, phMax: 9.0 },
+  precaucion: { condMax: 2500,              phMin: 6.5, phMax: 8.5 },
+};
+
+function clasificarEstado({ ph, cond, sal }) {
+  const has = v => v != null && !isNaN(v);
+  const c = UMBRALES.critico, w = UMBRALES.precaucion;
+  if ((has(cond) && cond > c.condMax) || (has(sal) && sal > c.salMax) ||
+      (has(ph) && (ph < c.phMin || ph > c.phMax))) return 'Crítico';
+  if ((has(cond) && cond > w.condMax) ||
+      (has(ph) && (ph < w.phMin || ph > w.phMax))) return 'Precaución';
+  return 'Apta';
+}
+
+// Criterios de la regla que cumple una medición, para explicar su estado
+function motivosEstado({ ph, cond, sal }) {
+  const has = v => v != null && !isNaN(v);
+  const c = UMBRALES.critico, w = UMBRALES.precaucion, m = [];
+  if (has(cond) && cond > c.condMax) m.push({ sev:'Crítico', txt:`Conductividad ${fmtMiles(cond)} µS/cm > ${fmtMiles(c.condMax)}` });
+  else if (has(cond) && cond > w.condMax) m.push({ sev:'Precaución', txt:`Conductividad ${fmtMiles(cond)} µS/cm > ${fmtMiles(w.condMax)}` });
+  if (has(sal) && sal > c.salMax) m.push({ sev:'Crítico', txt:`Salinidad ${Number(sal).toFixed(3)} mS/cm > ${c.salMax.toFixed(1)}` });
+  if (has(ph) && (ph < c.phMin || ph > c.phMax)) m.push({ sev:'Crítico', txt:`pH ${ph} fuera del rango ${c.phMin.toFixed(1)}–${c.phMax.toFixed(1)}` });
+  else if (has(ph) && (ph < w.phMin || ph > w.phMax)) m.push({ sev:'Precaución', txt:`pH ${ph} fuera del rango ${w.phMin.toFixed(1)}–${w.phMax.toFixed(1)}` });
+  return m;
+}
+
+// ── Formato de valores (un valor ausente se muestra como "—") ────────────────
+// fmtNum(v)    → valor tal cual       fmtNum(v, 2) → con 2 decimales
+// fmtMiles(v)  → entero con separador de miles (es-CO)
+function fmtNum(v, decimals) {
+  if (v == null || isNaN(v)) return '—';
+  return decimals == null ? String(v) : Number(v).toFixed(decimals);
+}
+
+function fmtMiles(v) {
+  if (v == null || isNaN(v)) return '—';
+  return Number(v).toLocaleString('es-CO');
+}
+
 // ── Helpers de agregación ────────────────────────────────────────────────────
+// Promedio de los valores presentes; los ausentes (null) no cuentan.
 function avg(arr, key) {
-  const vals = arr.filter(p => p[key] > 0);
+  const vals = arr.filter(p => p[key] != null && p[key] > 0);
   return vals.length ? vals.reduce((a, b) => a + b[key], 0) / vals.length : 0;
 }
 
@@ -203,6 +247,7 @@ const ACTORS = [
     ALERTS, BUS_MATRIX, ACTORS, distByEstado, TIPOS, USOS, METODOS,
     buildSeries,
     SECA_IDX, HUM_IDX,
+    UMBRALES, clasificarEstado, motivosEstado, fmtNum, fmtMiles,
   };
 }
 

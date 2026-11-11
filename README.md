@@ -43,7 +43,7 @@ Proyecto académico del programa de Ingeniería de Negocios de la Universidad Ma
 | Capa | Tecnología | Ubicación |
 |------|------------|-----------|
 | Bodega de datos | PostgreSQL en Supabase | `api/schema.sql`, `api/create_functions.sql` |
-| Carga de datos | Python, cliente Supabase | `api/load_to_supabase.py` |
+| Carga de datos | Python, cliente Supabase | `api/load_to_supabase.py`, `api/migraciones/` |
 | API | Python 3, FastAPI, Uvicorn | `api/` |
 | Frontend | React 18, Leaflet, SheetJS; sin paso de compilación (JSX transpilado en el navegador) | raíz del repositorio |
 | ETL de referencia | Python, pandas | `etl/etl_guajira.py` |
@@ -61,6 +61,17 @@ Al iniciar, el frontend consulta `GET /api/health` y descarga las mediciones pag
 | Campañas | Época seca, febrero de 2026 (1.543 mediciones); época húmeda, octubre de 2025 (192 mediciones) |
 | Variables | pH, conductividad eléctrica (µS/cm), salinidad (mS/cm), temperatura (°C), sólidos totales disueltos (mg/L), profundidad (m) |
 | Coordenadas | Convertidas de MAGNA-SIRGAS / Colombia Bogotá (EPSG:3116) a WGS84 |
+
+**Valores ausentes.** Se almacenan como nulos, se muestran como "—" y no cuentan en los promedios. En la fuente aparecían como números:
+
+| Variable | Registros | Valor en la fuente | Motivo |
+|----------|-----------|--------------------|--------|
+| Salinidad | 65 | 0 | El sensor no registró el dato |
+| Sólidos totales disueltos | 64 | 0 | El sensor no registró el dato |
+| Temperatura | 27 | 0 °C | El sensor no registró el dato |
+| Profundidad | 703 | 10 m | Valor de relleno: aparece en el 40 % de los registros y en los 11 municipios |
+
+La sonda multiparámetro calcula la salinidad y los sólidos disueltos a partir de la conductividad (aproximadamente 0,00055 y 0,49 veces su valor). Por eso un 0 en esas variables con conductividad normal indica un dato no registrado. No se imputan.
 
 ## Modelo dimensional
 
@@ -84,7 +95,15 @@ La agregación se resuelve en la base de datos mediante funciones SQL invocadas 
 
 ## Indicadores y reglas de clasificación
 
-Cada medición tiene un estado de calidad: `Apta`, `Precaución` o `Crítico`.
+Cada medición se clasifica con una regla única, definida en `api/calidad.py`. La usan la carga a la base de datos, el ETL y el script de migración. El frontend replica la misma regla en `clasificarEstado` (`mock-data.jsx`).
+
+| Estado | Condición (basta con una) |
+|--------|---------------------------|
+| `Crítico` | Conductividad > 5.000 µS/cm; salinidad > 4,0 mS/cm; pH < 6,0 o pH > 9,0 |
+| `Precaución` | Conductividad > 2.500 µS/cm; pH < 6,5 o pH > 8,5 |
+| `Apta` | Ninguna de las anteriores |
+
+Un valor ausente no activa ningún criterio. Si se cambia un umbral, hay que cambiarlo en `api/calidad.py`, en `mock-data.jsx` y en `api/migraciones/001_valores_ausentes.sql`.
 
 Las alertas se generan con estos umbrales:
 
@@ -128,12 +147,14 @@ Indicadores principales:
 ├── api/
 │   ├── main.py              Aplicación FastAPI, CORS y registro de rutas
 │   ├── auth.py              Autenticación administrativa
+│   ├── calidad.py           Regla única de clasificación de calidad
 │   ├── crear_admin.py       Generador de credenciales del administrador
 │   ├── database.py          Cliente de Supabase
 │   ├── routers/             kpis, puntos, municipios, alertas, series
 │   ├── schema.sql           Tablas, índices y vistas
 │   ├── create_functions.sql Funciones de agregación
 │   ├── load_to_supabase.py  Carga inicial de las mediciones
+│   ├── migraciones/         Correcciones para bases ya cargadas
 │   ├── requirements.txt
 │   └── .env.example
 ├── etl/
@@ -154,6 +175,8 @@ En el editor SQL de Supabase, ejecutar en orden:
 
 1. `api/schema.sql`
 2. `api/create_functions.sql`
+
+En una base cargada antes de la corrección de valores ausentes, ejecutar además `api/migraciones/001_valores_ausentes.sql`. Es idempotente.
 
 ### 2. API
 
@@ -249,7 +272,7 @@ def crear_medicion(...):
 - **Registro de puntos sin persistencia.** El formulario de nuevo punto de monitoreo valida los datos pero aún no los envía a la API.
 - **Reportes programados.** La programación y el envío por correo de reportes no están implementados. La generación inmediata en PDF, CSV y XLSX sí funciona.
 - **Alertas reconocidas.** El reconocimiento de alertas se pierde al recargar la página.
-- **Valores faltantes.** En la campaña húmeda, 57 mediciones registran salinidad y sólidos disueltos en 0, y 27 mediciones tienen temperatura de 0 °C. Probablemente son datos ausentes y afectan los promedios.
+- **Salinidades inconsistentes.** En cuatro mediciones (GJ-00165, GJ-00200, GJ-01612, GJ-01717) la salinidad es entre 2 y 10 veces mayor que la correspondiente a su conductividad. En GJ-00165 los sólidos disueltos sí corresponden a la conductividad; en las otras tres también son anómalos. Probablemente son errores de registro. Se conservan tal como están en la fuente y las cuatro quedan clasificadas como `Crítico` por salinidad > 4,0 mS/cm.
 - **Rendimiento del frontend.** React se carga en modo desarrollo y el JSX se transpila en el navegador. Para producción se recomienda un paso de compilación.
 
 ## Capturas

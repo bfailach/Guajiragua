@@ -329,10 +329,10 @@ function PageFisicoquimica() {
                         <td><span className="mono" style={{fontSize:11, color:'var(--text-2)'}}>{p.temporada}</span></td>
                         <td className="num"><span className="mono">{p.ph}</span></td>
                         <td className="num"><span className="mono">{p.cond.toLocaleString('es-CO')}</span></td>
-                        <td className="num"><span className="mono">{p.sal.toFixed(3)}</span></td>
-                        <td className="num"><span className="mono">{p.temp}</span></td>
-                        <td className="num"><span className="mono">{p.std.toLocaleString('es-CO')}</span></td>
-                        <td className="num"><span className="mono">{p.prof.toFixed(1)}</span></td>
+                        <td className="num"><span className="mono">{GJ.fmtNum(p.sal, 3)}</span></td>
+                        <td className="num"><span className="mono">{GJ.fmtNum(p.temp)}</span></td>
+                        <td className="num"><span className="mono">{GJ.fmtMiles(p.std)}</span></td>
+                        <td className="num"><span className="mono">{GJ.fmtNum(p.prof, 1)}</span></td>
                         <td><StatusPill estado={p.estado} /></td>
                         <td style={{textAlign:'center'}}>
                           <span className={'pill ' + (p.activo ? 'good' : 'neut')}>{p.activo ? 'SÍ' : 'NO'}</span>

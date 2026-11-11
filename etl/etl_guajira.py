@@ -14,6 +14,9 @@ Ejecución:
 
 import sys, os
 import pandas as pd
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "api"))
+from calidad import clasificar_estado  # noqa: E402
 from datetime import datetime
 
 # Forzar UTF-8 en consola Windows (Python 3.7+)
@@ -26,11 +29,7 @@ if hasattr(sys.stdout, 'reconfigure'):
 INPUT_FILE  = "datos_fuente_guajira.xlsx"   # archivo con datos crudos
 OUTPUT_FILE = "dwh_guajira.xlsx"            # archivo de salida (Data Warehouse)
 
-UMBRAL_SAL  = 4.0    # mS/cm  — límite salinidad crítica
-UMBRAL_COND = 5000   # µS/cm  — límite conductividad crítica
-UMBRAL_PH_L = 6.0    # pH mínimo aceptable
-UMBRAL_PH_H = 8.5    # pH máximo aceptable
-UMBRAL_TEMP = 35.0   # °C     — temperatura anómala
+# Los umbrales de clasificación están en api/calidad.py (regla única del sistema).
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -170,30 +169,27 @@ def transform(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     print(f"    Outliers físicos eliminados: {outliers.sum()}")
     df = df[~outliers].copy()
 
-    # 2.5 — Imputar nulos con mediana por municipio
-    for col in ["ph", "conductividad", "salinidad", "temperatura"]:
-        if col in df.columns and df[col].isna().any():
-            mediana = df.groupby("id_municipio")[col].transform("median")
-            n_imp = df[col].isna().sum()
-            df[col] = df[col].fillna(mediana)
-            print(f"    Nulos imputados en '{col}': {n_imp}")
+    # 2.5 — Valores ausentes
+    # Las variables fisicoquímicas no se imputan: un valor ausente queda como
+    # nulo y se excluye de los promedios. Un 0 en salinidad, STD o temperatura
+    # indica que el sensor no registró el dato.
+    for col in ["salinidad", "std_mg_l", "temperatura"]:
+        if col in df.columns:
+            n_cero = int((df[col] == 0).sum())
+            df.loc[df[col] == 0, col] = None
+            if n_cero:
+                print(f"    Ceros convertidos a nulo en '{col}': {n_cero}")
 
-    # 2.6 — Clasificar estado según umbrales IDEAM
-    def clasificar_estado(row):
-        if (row.get("salinidad", 0)     > UMBRAL_SAL  or
-            row.get("conductividad", 0) > UMBRAL_COND or
-            row.get("ph", 7)            < UMBRAL_PH_L or
-            row.get("ph", 7)            > UMBRAL_PH_H or
-            row.get("temperatura", 0)   > UMBRAL_TEMP):
-            return "Crítico"
-        if (row.get("salinidad", 0)     > UMBRAL_SAL  * 0.7 or
-            row.get("conductividad", 0) > UMBRAL_COND * 0.7 or
-            row.get("ph", 7)            < 6.5 or
-            row.get("ph", 7)            > 8.0):
-            return "Alerta"
-        return "Apta"
+    # 2.6 — Clasificar estado con la regla única del sistema (api/calidad.py)
+    def _num(v):
+        return None if pd.isna(v) else float(v)
 
-    df["estado"] = df.apply(clasificar_estado, axis=1)
+    def clasificar(row):
+        return clasificar_estado(_num(row.get("ph")),
+                                 _num(row.get("conductividad")),
+                                 _num(row.get("salinidad")))
+
+    df["estado"] = df.apply(clasificar, axis=1)
 
     # 2.7 — Dimensión Tiempo
     df["anio"]      = df["fecha"].dt.year
@@ -256,8 +252,8 @@ def transform(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
         {"KPI": "% Aptas",                 "Valor": round(
              (fact_medicion["estado"] == "Apta").sum() / total * 100, 1),
          "Unidad": "%"},
-        {"KPI": "% Alerta",                "Valor": round(
-             (fact_medicion["estado"] == "Alerta").sum() / total * 100, 1),
+        {"KPI": "% Precaución",            "Valor": round(
+             (fact_medicion["estado"] == "Precaución").sum() / total * 100, 1),
          "Unidad": "%"},
         {"KPI": "% Críticas",              "Valor": round(
              (fact_medicion["estado"] == "Crítico").sum() / total * 100, 1),

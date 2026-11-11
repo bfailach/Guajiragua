@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 sys.path.insert(0, os.path.dirname(__file__))
 from database import get_client
+from calidad import clasificar_estado
 
 REAL_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "real-data.js")
 
@@ -66,7 +67,7 @@ def build_tables(points):
                 "metodo":       p.get("metodo", "Sonda multiparámetro"),
                 "lat":          p.get("lat"),
                 "lon":          p.get("lon"),
-                "prof_m":       p.get("prof", 0),
+                "prof_m":       p.get("prof"),
                 "activo":       p.get("activo", True),
             }
 
@@ -85,7 +86,7 @@ def build_tables(points):
             "salinidad":    p.get("sal"),
             "temperatura":  p.get("temp"),
             "std_mg_l":     p.get("std"),
-            "estado":       p.get("estado", "Apta"),
+            "estado":       clasificar_estado(p.get("ph"), p.get("cond"), p.get("sal")),
         })
 
     return list(municipios.values()), list(puntos.values()), hechos
