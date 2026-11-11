@@ -39,15 +39,15 @@ function PageTendencias() {
   const peakMonthI = seriesA.indexOf(peakSeca);
   const valMonthI  = seriesB.indexOf(valleyHum);
   const varPct     = valleyHum > 0
-    ? ((peakSeca - valleyHum) / valleyHum * 100).toFixed(1) + '%'
+    ? GJ.fmtNum((peakSeca - valleyHum) / valleyHum * 100, 1) + '%'
     : '—';
 
   function fmtAnnot(v) {
     if (!v) return '—';
     if (variable === 'cond') return v.toLocaleString('es-CO', {maximumFractionDigits:0});
-    if (variable === 'temp') return v.toFixed(1);
-    if (variable === 'sal')  return v.toFixed(3);
-    return v.toFixed(2);
+    if (variable === 'temp') return GJ.fmtNum(v, 1);
+    if (variable === 'sal')  return GJ.fmtNum(v, 3);
+    return GJ.fmtNum(v, 2);
   }
 
   const zonaLabel = zona === 'Todas' ? 'La Guajira' : zona + ' Guajira';
@@ -55,11 +55,8 @@ function PageTendencias() {
   const VAL_LOC   = valMonthI  >= 0 ? GJ.MONTHS[valMonthI]  + ' · ' + zonaLabel : '—';
 
   // ── KPIs calculados desde datos reales ────────────────────────────────────
-  const mkSpark = (from, to, n = 12) =>
-    Array.from({ length: n }, (_, i) => {
-      const t = i / (n - 1), e = t * t * (3 - 2 * t);
-      return +(from + (to - from) * e + Math.abs(from) * Math.sin(i * 2.1 + 0.7) * 0.01).toFixed(2);
-    });
+  // Mini gráfica con los dos valores reales (época húmeda → época seca)
+  const mkSpark = (from, to) => [from, to];
 
   function calcIPH(pts) {
     if (!pts.length) return 0;
@@ -108,9 +105,12 @@ function PageTendencias() {
         crumb="DWH · DM_SOSTENIB · ANÁLISIS TEMPORAL"
         title="Análisis de tendencias estacionales"
         right={<>
-          <div><b>Ventana:</b> 12 meses rolling · 2025·05 → 2026·04</div>
+          <div><b>Campañas:</b> {(() => {
+            const f = t => { const xs = GJ.ALL_POINTS.filter(p => p.temporada === t).map(p => p.fecha).sort(); return xs.length ? GJ.fechaCorta(xs[xs.length - 1]) : '—'; };
+            return `húmeda ${f('Húmeda')} · seca ${f('Seca')}`;
+          })()}</div>
           <div><b>Mediciones:</b> {GJ.ALL_POINTS.length.toLocaleString('es-CO')} registros</div>
-          <div><b>Granularidad:</b> mes · municipio · época</div>
+          <div><b>Meses intermedios:</b> estimados</div>
         </>}
       />
 
@@ -138,9 +138,9 @@ function PageTendencias() {
             unit={variableMeta.unit}
             tickFormat={v => {
               if (variable === 'cond') return v.toLocaleString('es-CO', {maximumFractionDigits:0});
-              if (variable === 'temp') return v.toFixed(1);
-              if (variable === 'sal')  return v.toFixed(3);
-              return v.toFixed(2);
+              if (variable === 'temp') return GJ.fmtNum(v, 1);
+              if (variable === 'sal')  return GJ.fmtNum(v, 3);
+              return GJ.fmtNum(v, 2);
             }} />
 
           {/* Nota metodológica */}
@@ -154,7 +154,7 @@ function PageTendencias() {
               <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>PICO ÉPOCA SECA</div>
               <div className="mono tabular" style={{fontSize:20, color:'var(--text)', marginTop:4}}>
                 {fmtAnnot(peakSeca)}
-                <span style={{fontSize:11, color:'var(--text-3)', marginLeft:4}}>{variableMeta.unit}</span>
+                <span style={{fontSize:11, color:'var(--text-3)', marginLeft:4}}>{conMu(variableMeta.unit)}</span>
               </div>
               <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>{PEAK_LOC}</div>
             </div>
@@ -162,7 +162,7 @@ function PageTendencias() {
               <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>VALLE ÉPOCA HÚMEDA</div>
               <div className="mono tabular" style={{fontSize:20, color:'var(--text)', marginTop:4}}>
                 {fmtAnnot(valleyHum)}
-                <span style={{fontSize:11, color:'var(--text-3)', marginLeft:4}}>{variableMeta.unit}</span>
+                <span style={{fontSize:11, color:'var(--text-3)', marginLeft:4}}>{conMu(variableMeta.unit)}</span>
               </div>
               <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>{VAL_LOC}</div>
             </div>
@@ -178,12 +178,12 @@ function PageTendencias() {
 
         {/* KPIs Kimball */}
         <div className="card card-pad">
-          <SecTitle title="KPIs estratégicos" sub="DM_SOSTENIB · 8 KPIs Kimball" />
+          <SecTitle title="KPIs estratégicos" sub="4 INDICADORES" />
           <div className="grid" style={{gridTemplateColumns:'1fr 1fr', gap:12, marginTop:8}}>
-            <KpiCard label="IPH · Potabilidad"      value={String(iphVal)}     delta={dIPH}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(iphHum,       iphSeca)}       color="#2e8b57" />
-            <KpiCard label="IDA · Deterioro acuífero" value={String(idaVal)}     delta={dIDA}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(idaHum,       idaSeca)}       color="#b5403d" />
-            <KpiCard label="Variación salinidad"      value={String(varSalPct)}  unit="%"  delta={null} deltaLabel="amplitud anual"    sparkData={mkSpark(salVl,        salPk)}         color="#c97a2b" />
-            <KpiCard label="Tasa puntos críticos"     value={String(tasaCrit)}   unit="%"  delta={dTasa} deltaLabel="vs época seca"   sparkData={mkSpark(tasaCritSeca, tasaCrit)}     color="#b5403d" />
+            <KpiCard label="IPH · Potabilidad"      value={GJ.fmtNum(iphVal)}     delta={dIPH}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(iphHum,       iphSeca)}       color="#2e8b57" />
+            <KpiCard label="IDA · Deterioro acuífero" value={GJ.fmtNum(idaVal)}     delta={dIDA}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(idaHum,       idaSeca)}       color="#b5403d" />
+            <KpiCard label="Variación salinidad"      value={GJ.fmtNum(varSalPct)}  unit="%"  delta={null} deltaLabel="amplitud anual"    sparkData={mkSpark(salVl,        salPk)}         color="#c97a2b" />
+            <KpiCard label="Tasa puntos críticos"     value={GJ.fmtNum(tasaCrit)}   unit="%"  delta={dTasa} deltaLabel="vs época seca"   sparkData={mkSpark(tasaCritSeca, tasaCrit)}     color="#b5403d" />
           </div>
 
           <hr className="div" />
@@ -217,9 +217,9 @@ function PageTendencias() {
           getValue={(r, c) => r[c.key]}
           format={(v, c) => {
             if (c.key === 'cond' || c.key === 'std') return v.toLocaleString('es-CO');
-            if (c.key === 'temp') return v.toFixed(1);
-            if (c.key === 'sal') return v.toFixed(2);
-            return v.toFixed(2);
+            if (c.key === 'temp') return GJ.fmtNum(v, 1);
+            if (c.key === 'sal') return GJ.fmtNum(v, 2);
+            return GJ.fmtNum(v, 2);
           }}
         />
       </div>

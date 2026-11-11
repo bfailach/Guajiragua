@@ -44,23 +44,27 @@ function motivosEstado({ ph, cond, sal }) {
   const c = UMBRALES.critico, w = UMBRALES.precaucion, m = [];
   if (has(cond) && cond > c.condMax) m.push({ sev:'Crítico', txt:`Conductividad ${fmtMiles(cond)} µS/cm > ${fmtMiles(c.condMax)}` });
   else if (has(cond) && cond > w.condMax) m.push({ sev:'Precaución', txt:`Conductividad ${fmtMiles(cond)} µS/cm > ${fmtMiles(w.condMax)}` });
-  if (has(sal) && sal > c.salMax) m.push({ sev:'Crítico', txt:`Salinidad ${Number(sal).toFixed(3)} mS/cm > ${c.salMax.toFixed(1)}` });
-  if (has(ph) && (ph < c.phMin || ph > c.phMax)) m.push({ sev:'Crítico', txt:`pH ${ph} fuera del rango ${c.phMin.toFixed(1)}–${c.phMax.toFixed(1)}` });
-  else if (has(ph) && (ph < w.phMin || ph > w.phMax)) m.push({ sev:'Precaución', txt:`pH ${ph} fuera del rango ${w.phMin.toFixed(1)}–${w.phMax.toFixed(1)}` });
+  if (has(sal) && sal > c.salMax) m.push({ sev:'Crítico', txt:`Salinidad ${fmtNum(sal, 3)} mS/cm > ${fmtNum(c.salMax, 1)}` });
+  if (has(ph) && (ph < c.phMin || ph > c.phMax)) m.push({ sev:'Crítico', txt:`pH ${fmtNum(ph)} fuera del rango ${fmtNum(c.phMin, 1)}–${fmtNum(c.phMax, 1)}` });
+  else if (has(ph) && (ph < w.phMin || ph > w.phMax)) m.push({ sev:'Precaución', txt:`pH ${fmtNum(ph)} fuera del rango ${fmtNum(w.phMin, 1)}–${fmtNum(w.phMax, 1)}` });
   return m;
 }
 
-// ── Formato de valores (un valor ausente se muestra como "—") ────────────────
-// fmtNum(v)    → valor tal cual       fmtNum(v, 2) → con 2 decimales
-// fmtMiles(v)  → entero con separador de miles (es-CO)
+// ── Formato de valores (colombiano: miles con punto, decimales con coma) ────
+// fmtNum(v)    → hasta 3 decimales          fmtNum(v, 2) → exactamente 2 decimales
+// fmtMiles(v)  → entero con separador de miles
+// Un valor ausente se muestra como "—".
 function fmtNum(v, decimals) {
-  if (v == null || isNaN(v)) return '—';
-  return decimals == null ? String(v) : Number(v).toFixed(decimals);
+  if (v == null || v === '' || isNaN(v)) return '—';
+  const n = Number(v);
+  return decimals == null
+    ? n.toLocaleString('es-CO', { maximumFractionDigits: 3 })
+    : n.toLocaleString('es-CO', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function fmtMiles(v) {
-  if (v == null || isNaN(v)) return '—';
-  return Number(v).toLocaleString('es-CO');
+  if (v == null || v === '' || isNaN(v)) return '—';
+  return Number(v).toLocaleString('es-CO', { maximumFractionDigits: 0 });
 }
 
 // ── Helpers de agregación ────────────────────────────────────────────────────
@@ -196,12 +200,12 @@ function criterioPrincipal(p) {
   const has = v => v != null && !isNaN(v);
   const cond = v => `${Number(v).toLocaleString('es-CO')} µS/cm`;
   if (has(p.cond) && p.cond > c.condMax) return { code: 'COND > 5.000', value: cond(p.cond), body: `Conductividad muy alta (agua muy salada) · ${p.tipo.toLowerCase()}` };
-  if (has(p.sal) && p.sal > c.salMax)    return { code: 'SAL > 4,0',    value: `${p.sal} mS/cm`, body: `Salinidad muy alta · ${p.tipo.toLowerCase()}` };
-  if (has(p.ph) && p.ph < c.phMin)       return { code: 'pH < 6,0',     value: `pH ${p.ph}`,     body: `Agua muy ácida · ${p.tipo.toLowerCase()}` };
-  if (has(p.ph) && p.ph > c.phMax)       return { code: 'pH > 9,0',     value: `pH ${p.ph}`,     body: `Agua muy alcalina · ${p.tipo.toLowerCase()}` };
+  if (has(p.sal) && p.sal > c.salMax)    return { code: 'SAL > 4,0',    value: `${fmtNum(p.sal)} mS/cm`, body: `Salinidad muy alta · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph < c.phMin)       return { code: 'pH < 6,0',     value: `pH ${fmtNum(p.ph)}`,     body: `Agua muy ácida · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph > c.phMax)       return { code: 'pH > 9,0',     value: `pH ${fmtNum(p.ph)}`,     body: `Agua muy alcalina · ${p.tipo.toLowerCase()}` };
   if (has(p.cond) && p.cond > w.condMax) return { code: 'COND > 2.500', value: cond(p.cond), body: `Conductividad elevada · ${p.tipo.toLowerCase()}` };
-  if (has(p.ph) && p.ph < w.phMin)       return { code: 'pH < 6,5',     value: `pH ${p.ph}`,     body: `Acidez fuera de lo normal · ${p.tipo.toLowerCase()}` };
-  if (has(p.ph) && p.ph > w.phMax)       return { code: 'pH > 8,5',     value: `pH ${p.ph}`,     body: `Alcalinidad fuera de lo normal · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph < w.phMin)       return { code: 'pH < 6,5',     value: `pH ${fmtNum(p.ph)}`,     body: `Acidez fuera de lo normal · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph > w.phMax)       return { code: 'pH > 8,5',     value: `pH ${fmtNum(p.ph)}`,     body: `Alcalinidad fuera de lo normal · ${p.tipo.toLowerCase()}` };
   return null;
 }
 

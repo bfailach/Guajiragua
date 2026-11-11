@@ -28,14 +28,14 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
 
   const muniRows = muniStats.map(m =>
     `<tr><td>${escHtml(m.name)}</td><td>${escHtml(m.zona)}</td><td>${escHtml(m.n)}</td>
-     <td>${m.ph.toFixed(2)}</td><td>${m.cond.toLocaleString('es-CO')}</td>
-     <td>${m.sal.toFixed(2)}</td>
+     <td>${GJ.fmtNum(m.ph, 2)}</td><td>${m.cond.toLocaleString('es-CO')}</td>
+     <td>${GJ.fmtNum(m.sal, 2)}</td>
      <td><span class="tag critico">${m.criticos}</span></td>
      <td><span class="tag apta">${m.apta}</span></td></tr>`
   ).join('');
 
   const dataHeader = selectedVars.map(v =>
-    `<th>${v}${VAR_UNIT[v] ? ' (' + VAR_UNIT[v] + ')' : ''}</th>`
+    `<th>${v}${VAR_UNIT[v] ? ' (' + '<span style="text-transform:none">' + VAR_UNIT[v] + '</span>' + ')' : ''}</th>`
   ).join('');
 
   const dataRows = sample.map(p =>
@@ -43,7 +43,7 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
       <td class="mono">${escHtml(p.id)}</td>
       <td>${escHtml(p.muniName)}</td><td>${escHtml(p.tipo)}</td><td>${escHtml(p.temporada)}</td>
       <td><span class="tag ${tagCls(p.estado)}">${escHtml(p.estado)}</span></td>
-      ${varCols.map(c => `<td class="num">${p[c] != null ? escHtml(p[c]) : '—'}</td>`).join('')}
+      ${varCols.map(c => `<td class="num">${p[c] != null ? escHtml(GJ.fmtNum(p[c])) : '—'}</td>`).join('')}
     </tr>`
   ).join('');
 
@@ -117,7 +117,7 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
 <section>
   <h2>Resumen por municipio</h2>
   <table>
-    <thead><tr><th>Municipio</th><th>Zona</th><th>N</th><th>pH prom.</th><th>Cond. µS/cm</th><th>Sal. mS/cm</th><th>Críticos</th><th>Aptos</th></tr></thead>
+    <thead><tr><th>Municipio</th><th>Zona</th><th>N</th><th>pH prom.</th><th>Cond. <span style="text-transform:none">µS/cm</span></th><th>Sal. <span style="text-transform:none">mS/cm</span></th><th>Críticos</th><th>Aptos</th></tr></thead>
     <tbody>${muniRows}</tbody>
   </table>
 </section>
@@ -337,7 +337,7 @@ function ReportGenerator() {
             fmt:   capturedFormato.toUpperCase(),
             fecha: new Date().toISOString().slice(0, 16).replace('T', ' '),
             user:  (window.GJ_AUTH && window.GJ_AUTH.session() && window.GJ_AUTH.session().usuario) || 'admin',
-            size:  '≈ ' + capturedSizeMb + ' MB',
+            size:  '≈ ' + GJ.fmtNum(capturedSizeMb) + ' MB',
           }, ...prev];
         });
 
@@ -581,7 +581,7 @@ function ReportGenerator() {
                       <div className="mono" style={{fontSize:12, fontWeight:600, letterSpacing:'0.06em', color:'var(--text)'}}>{f.name}</div>
                       <div className="mono" style={{fontSize:10, color:'var(--text-3)', marginTop:2}}>{f.desc}</div>
                     </div>
-                    <span className="mono tabular" style={{fontSize:11, color: sel ? 'var(--text)' : 'var(--text-3)'}}>~{sizeMb} MB</span>
+                    <span className="mono tabular" style={{fontSize:11, color: sel ? 'var(--text)' : 'var(--text-3)'}}>~{GJ.fmtNum(sizeMb)} MB</span>
                   </button>
                 );
               })}

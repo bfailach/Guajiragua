@@ -98,7 +98,7 @@ function PageFisicoquimica() {
                  sparkData={epochRef ? makeSpark(epochRef.activos, activos) : null}
                  color="#2c5fa6" />
         <KpiCard label="pH promedio"
-                 value={ph.toFixed(2)}
+                 value={GJ.fmtNum(ph, 2)}
                  delta={dPh}
                  deltaLabel={eLbl}
                  sparkData={epochRef ? makeSpark(epochRef.ph, ph) : null}
@@ -110,7 +110,7 @@ function PageFisicoquimica() {
                  sparkData={epochRef ? makeSpark(epochRef.criticos, criticos) : null}
                  color="#b5403d" />
         <KpiCard label="Cobertura hídrica"
-                 value={cobertura.toFixed(1)}
+                 value={GJ.fmtNum(cobertura, 1)}
                  unit="%"
                  delta={dCob}
                  deltaLabel={eLbl}
@@ -168,7 +168,7 @@ function PageFisicoquimica() {
             <div>
               <div className="flex between center" style={{marginBottom:8}}>
                 <span className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em', textTransform:'uppercase'}}>Histograma de pH</span>
-                <span className="mono tabular" style={{fontSize:11, color:'var(--text-2)'}}>µ = {ph}</span>
+                <span className="mono tabular" style={{fontSize:11, color:'var(--text-2)'}}>µ = {GJ.fmtNum(ph, 2)}</span>
               </div>
               <Histogram data={phValues} />
             </div>
@@ -198,7 +198,7 @@ function PageFisicoquimica() {
                 rows={GJ.MUNI_AGG.map(r => ({...r}))}
                 valueKey="ph"
                 max={9.0}
-                format={v => v.toFixed(2)}
+                format={v => GJ.fmtNum(v, 2)}
                 selectedId={selMuni}
                 onSelect={setSelMuni}
               />
@@ -278,13 +278,13 @@ function PageFisicoquimica() {
             </div>
             <div style={{display:'flex', gap:28, alignItems:'center', flexWrap:'wrap'}}>
               {[
-                { label:'pH prom.',    value: detailMuni.ph.toFixed(2) },
+                { label:'pH prom.',    value: GJ.fmtNum(detailMuni.ph, 2) },
                 { label:'Cond µS/cm', value: detailMuni.cond.toLocaleString('es-CO') },
-                { label:'Sal mS/cm',  value: detailMuni.sal.toFixed(2) },
+                { label:'Sal mS/cm',  value: GJ.fmtNum(detailMuni.sal, 2) },
                 { label:'Críticos',   value: detailMuni.criticos, warn: detailMuni.criticos > 0 },
               ].map(k => (
                 <div key={k.label} style={{textAlign:'center'}}>
-                  <div className="mono" style={{fontSize:9, color:'var(--text-3)', letterSpacing:'0.1em', textTransform:'uppercase'}}>{k.label}</div>
+                  <div className="mono" style={{fontSize:9, color:'var(--text-3)', letterSpacing:'0.1em', textTransform:'uppercase'}}>{conMu(k.label)}</div>
                   <div className="mono tabular" style={{fontSize:20, color: k.warn ? '#b5403d' : 'var(--text)', marginTop:2}}>{k.value}</div>
                 </div>
               ))}
@@ -312,10 +312,10 @@ function PageFisicoquimica() {
                       <th>Uso</th>
                       <th style={{width:95}}>Época</th>
                       <th style={{width:60}}>pH</th>
-                      <th>Cond. µS/cm</th>
-                      <th>Sal. mS/cm</th>
+                      <th>Cond. <span className="mu">µS/cm</span></th>
+                      <th>Sal. <span className="mu">mS/cm</span></th>
                       <th>Temp. °C</th>
-                      <th>STD mg/L</th>
+                      <th>STD <span className="mu">mg/L</span></th>
                       <th>Prof. m</th>
                       <th style={{width:120}}>Estado</th>
                       <th style={{width:60}}>Activo</th>
@@ -324,11 +324,11 @@ function PageFisicoquimica() {
                   <tbody>
                     {detailPts.map(p => (
                       <tr key={p.id}>
-                        <td><span className="mono" style={{color:'var(--text-2)'}}>{p.id}</span></td>
+                        <td><span className="mono" style={{color:'var(--text-2)', whiteSpace:'nowrap'}}>{p.id}</span></td>
                         <td>{p.tipo}</td>
                         <td style={{color:'var(--text-2)', fontSize:11}}>{p.uso}</td>
                         <td><span className="mono" style={{fontSize:11, color:'var(--text-2)'}}>{p.temporada}</span></td>
-                        <td className="num"><span className="mono">{p.ph}</span></td>
+                        <td className="num"><span className="mono">{GJ.fmtNum(p.ph)}</span></td>
                         <td className="num"><span className="mono">{p.cond.toLocaleString('es-CO')}</span></td>
                         <td className="num"><span className="mono">{GJ.fmtNum(p.sal, 3)}</span></td>
                         <td className="num"><span className="mono">{GJ.fmtNum(p.temp)}</span></td>

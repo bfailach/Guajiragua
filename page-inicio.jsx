@@ -51,7 +51,7 @@ function iniKm(a, b) {
 }
 function iniFmtKm(km) {
   if (km < 0.1) return 'menos de 100 m';
-  if (km < 10) return km.toFixed(1).replace('.', ',') + ' km';
+  if (km < 10) return GJ.fmtNum(km, 1) + ' km';
   return Math.round(km).toLocaleString('es-CO') + ' km';
 }
 
@@ -160,9 +160,9 @@ function DetalleFuente({ p, km, onClose }) {
           <MonoLabel>Valores medidos</MonoLabel>
           <div className="mono tabular" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '6px 16px', marginTop: 8, fontSize: 12 }}>
             <span style={{ color: 'var(--text-3)' }}>CONDUCTIVIDAD (SAL)</span><span>{GJ.fmtMiles(p.cond)} µS/cm</span>
-            <span style={{ color: 'var(--text-3)' }}>ACIDEZ (pH)</span><span>{p.ph}{phNormal ? ' · normal' : ''}</span>
-            <span style={{ color: 'var(--text-3)' }}>SALINIDAD</span><span>{p.sal != null ? p.sal + ' mS/cm' : '—'}</span>
-            <span style={{ color: 'var(--text-3)' }}>TEMPERATURA</span><span>{p.temp != null ? p.temp + ' °C' : '—'}</span>
+            <span style={{ color: 'var(--text-3)' }}>ACIDEZ (pH)</span><span>{GJ.fmtNum(p.ph)}{phNormal ? ' · normal' : ''}</span>
+            <span style={{ color: 'var(--text-3)' }}>SALINIDAD</span><span>{p.sal != null ? GJ.fmtNum(p.sal) + ' mS/cm' : '—'}</span>
+            <span style={{ color: 'var(--text-3)' }}>TEMPERATURA</span><span>{p.temp != null ? GJ.fmtNum(p.temp) + ' °C' : '—'}</span>
           </div>
           <p style={{ margin: '10px 0 0', fontSize: 12, color: 'var(--text-3)' }}>
             Medido el {iniFecha(p.fecha)}, en época {p.temporada === 'Seca' ? 'seca' : 'de lluvias'}. El agua puede cambiar con las lluvias.

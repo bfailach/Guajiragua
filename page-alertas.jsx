@@ -120,7 +120,7 @@ function PageAlertas() {
             {filtered.slice(0, limite).map(a => (
               <tr key={a.id}>
                 <td><div className={'sev-dot ' + a.sev} style={{marginTop:0}}/></td>
-                <td><span className="mono" style={{color:'var(--text-2)'}}>{a.id}</span></td>
+                <td><span className="mono" style={{color:'var(--text-2)', whiteSpace:'nowrap'}}>{a.id}</span></td>
                 <td>
                   <span className={'pill ' + (a.sev==='crit'?'bad':a.sev==='warn'?'warn':'good')}>
                     {a.sev==='crit'?'Crítica':'Advertencia'}
@@ -129,7 +129,7 @@ function PageAlertas() {
                 <td><span className="mono" style={{color:'var(--ocre)', whiteSpace:'nowrap'}}>{a.code}</span></td>
                 <td>{a.body}</td>
                 <td>{a.muni}</td>
-                <td><span className="mono" style={{color:'var(--text-2)'}}>{a.point}</span></td>
+                <td><span className="mono" style={{color:'var(--text-2)', whiteSpace:'nowrap'}}>{a.point}</span></td>
                 <td className="num"><span className="mono" style={{whiteSpace:'nowrap'}}>{a.value}</span></td>
                 <td className="mono" style={{color:'var(--text-3)'}}>{a.time}</td>
                 <td>

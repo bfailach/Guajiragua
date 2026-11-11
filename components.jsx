@@ -3,6 +3,15 @@
 const { useState, useMemo, useEffect, useRef } = React;
 
 // ── Top Navigation ───────────────────────────────────────────────
+// Las unidades conservan su forma (µS/cm, mS/cm, mg/L) aunque el texto que las
+// contiene se muestre en mayúsculas: "MS/CM" se leería como otra unidad.
+const UNIDADES_RE = /(µS\/cm|mS\/cm|mg\/L)/;
+function conMu(text) {
+  if (typeof text !== 'string' || !UNIDADES_RE.test(text)) return text;
+  return text.split(UNIDADES_RE).map((parte, i) => i % 2 ? <span key={i} className="mu">{parte}</span> : parte);
+}
+window.conMu = conMu;
+
 function TopNav({ page, setPage }) {
   const left = [
     { id: 'fisico',    label: 'Información fisicoquímica' },
@@ -87,12 +96,12 @@ function KpiCard({ label, value, unit, delta, deltaLabel, sparkData, color }) {
       <div className="kpi-label">{label}</div>
       <div className="kpi-value tabular">
         {value}
-        {unit && <span className="kpi-unit">{unit}</span>}
+        {unit && <span className="kpi-unit">{conMu(unit)}</span>}
       </div>
       {sparkData && <Spark data={sparkData} stroke={stroke} />}
       <div className="kpi-foot">
         <span className={'delta ' + (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat')}>
-          {delta > 0 ? '▲' : delta < 0 ? '▼' : '—'} {delta != null ? Math.abs(delta) + '%' : ''}
+          {delta > 0 ? '▲' : delta < 0 ? '▼' : '—'} {delta != null ? GJ.fmtNum(Math.abs(delta)) + '%' : ''}
         </span>
         <span>{deltaLabel}</span>
       </div>
@@ -232,7 +241,7 @@ function Histogram({ data, bins = 14, min = 5.5, max = 9.5, color = '#2c5fa6', h
           const inSafe = mid >= 6.5 && mid <= 8.5;
           return (
             <div key={i} style={{flex:1, display:'flex', flexDirection:'column', justifyContent:'flex-end', height:'100%'}}>
-              <div title={`pH ≈ ${mid.toFixed(2)} · ${c} pts`}
+              <div title={`pH ≈ ${GJ.fmtNum(mid, 2)} · ${c} pts`}
                    style={{
                      height: Math.max(2, h),
                      background: inSafe ? color : '#c97a2b',
@@ -244,9 +253,9 @@ function Histogram({ data, bins = 14, min = 5.5, max = 9.5, color = '#2c5fa6', h
         })}
       </div>
       <div className="mono" style={{display:'flex', justifyContent:'space-between', marginTop:6, fontSize:10, color:'var(--text-3)'}}>
-        <span>pH {min}</span>
-        <span style={{color:'#2c5fa6'}}>· · ·  rango óptimo 6.5–8.5  · · ·</span>
-        <span>pH {max}</span>
+        <span>pH {GJ.fmtNum(min, 1)}</span>
+        <span style={{color:'#2c5fa6'}}>· · ·  rango óptimo 6,5–8,5  · · ·</span>
+        <span>pH {GJ.fmtNum(max, 1)}</span>
       </div>
     </div>
   );
@@ -341,7 +350,7 @@ function Heatmap({ rows, cols, getValue, format = v => v, scale }) {
       <thead>
         <tr>
           <th style={{width:120}}>Municipio</th>
-          {cols.map(c => <th key={c.key} style={{textAlign:'center'}}>{c.label}</th>)}
+          {cols.map(c => <th key={c.key} style={{textAlign:'center'}}>{conMu(c.label)}</th>)}
         </tr>
       </thead>
       <tbody>
@@ -407,7 +416,7 @@ function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c9
     grid.push(
       <g key={i}>
         <line x1={padL} y1={y} x2={w - padR} y2={y} stroke="#d8d8d8" strokeWidth="0.5" strokeDasharray="2 4" />
-        <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="9" fontFamily="JetBrains Mono, monospace" fill="#888888">{tickFormat ? tickFormat(v) : v.toFixed(2)}</text>
+        <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="9" fontFamily="JetBrains Mono, monospace" fill="#888888">{tickFormat ? tickFormat(v) : GJ.fmtNum(v, 2)}</text>
       </g>
     );
   }
@@ -418,7 +427,7 @@ function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c9
           <span><span className="sw" style={{background: colorA}}/>{labelA}</span>
           <span><span className="sw" style={{background: colorB}}/>{labelB}</span>
         </div>
-        <div className="mono" style={{fontSize:10, color:'var(--text-3)'}}>{unit}</div>
+        <div className="mono" style={{fontSize:10, color:'var(--text-3)'}}>{conMu(unit)}</div>
       </div>
       <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{display:'block'}}>
         <defs>

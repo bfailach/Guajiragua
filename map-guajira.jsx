@@ -66,9 +66,9 @@ function tooltipHTML(m, a) {
     <div class="tt-name">${m.name} · <span style="color:#888">${a.zona} Guajira</span></div>
     <div class="tt-row"><span>Puntos</span><b>${a.n}</b></div>
     <div class="tt-row"><span>Activos</span><b>${a.activos}</b></div>
-    <div class="tt-row"><span>pH promedio</span><b>${a.ph}</b></div>
-    <div class="tt-row"><span>Conductividad</span><b>${a.cond} µS/cm</b></div>
-    <div class="tt-row"><span>Salinidad</span><b>${a.sal} mS/cm</b></div>
+    <div class="tt-row"><span>pH promedio</span><b>${GJ.fmtNum(a.ph, 2)}</b></div>
+    <div class="tt-row"><span>Conductividad</span><b>${GJ.fmtMiles(a.cond)} µS/cm</b></div>
+    <div class="tt-row"><span>Salinidad</span><b>${GJ.fmtNum(a.sal, 2)} mS/cm</b></div>
     <div class="tt-row"><span>Críticos</span><b style="color:${a.criticos > 20 ? '#b5403d' : '#0f0f0f'}">${a.criticos}</b></div>
   `;
 }

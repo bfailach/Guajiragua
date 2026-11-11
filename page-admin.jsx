@@ -39,7 +39,7 @@ function DetailModal({ point, onClose }) {
     ['Fecha',     point.fecha],
   ];
   const metrics = [
-    { label:'pH',           value: point.ph,          unit:'',         warn: !phOk },
+    { label:'pH',           value: GJ.fmtNum(point.ph), unit:'',       warn: !phOk },
     { label:'Conductividad',value: point.cond.toLocaleString('es-CO'), unit:'µS/cm', warn: point.cond > 2500 },
     { label:'Salinidad',    value: GJ.fmtNum(point.sal, 3), unit:'mS/cm', warn: point.sal > 2.0 },
     { label:'Temperatura',  value: GJ.fmtNum(point.temp), unit:'°C',      warn: false },
@@ -90,7 +90,7 @@ function DetailModal({ point, onClose }) {
                 <span className="mono" style={{fontSize:10.5, color:'var(--text-3)', letterSpacing:'0.08em', textTransform:'uppercase'}}>{m.label}</span>
                 <span className="mono tabular" style={{fontSize:15, color: m.warn ? '#b5403d' : 'var(--text)', fontWeight:500}}>
                   {m.value}
-                  <span style={{fontSize:10, color:'var(--text-3)', marginLeft:4}}>{m.unit}</span>
+                  <span style={{fontSize:10, color:'var(--text-3)', marginLeft:4}}>{conMu(m.unit)}</span>
                 </span>
               </div>
             ))}
@@ -175,7 +175,7 @@ function NuevoPuntoModal({ onClose, onSave }) {
 
   const F = ({ id, label, hint, type = 'number', value, onChange, options, step }) => (
     <div className="field">
-      <label>{label}</label>
+      <label>{conMu(label)}</label>
       {options ? (
         <select value={value} onChange={e => onChange(e.target.value)} className={errors[id] ? 'err-field' : ''}>
           {options.map(o => <option key={o.value != null ? o.value : o} value={o.value != null ? o.value : o}>{o.label != null ? o.label : o}</option>)}
@@ -183,7 +183,7 @@ function NuevoPuntoModal({ onClose, onSave }) {
       ) : (
         <input type={type} value={value} step={step} onChange={e => onChange(e.target.value)} className={errors[id] ? 'err-field' : ''} />
       )}
-      {hint && !errors[id] && <div className="hint">{hint}</div>}
+      {hint && !errors[id] && <div className="hint">{conMu(hint)}</div>}
       {errors[id] && <div className="err-msg">⚠ {errors[id]}</div>}
     </div>
   );
@@ -353,10 +353,10 @@ function PageAdmin() {
                 <th style={{width:80}}>Zona</th>
                 <th style={{width:100}}>Tipo</th>
                 <th>pH</th>
-                <th>Cond. µS/cm</th>
-                <th>Sal. mS/cm</th>
+                <th>Cond. <span className="mu">µS/cm</span></th>
+                <th>Sal. <span className="mu">mS/cm</span></th>
                 <th>Temp. °C</th>
-                <th>STD mg/L</th>
+                <th>STD <span className="mu">mg/L</span></th>
                 <th>Prof. m</th>
                 <th style={{width:80}}>Época</th>
                 <th style={{width:120}}>Estado</th>
@@ -366,11 +366,11 @@ function PageAdmin() {
             <tbody>
               {pageRows.map(p => (
                 <tr key={p.id} style={{cursor:'pointer'}} onClick={() => setDetailPoint(p)}>
-                  <td><span className="mono" style={{color:'var(--text-2)'}}>{p.id}</span></td>
+                  <td><span className="mono" style={{color:'var(--text-2)', whiteSpace:'nowrap'}}>{p.id}</span></td>
                   <td>{p.muniName}</td>
                   <td><span className="mono" style={{color:'var(--text-3)', fontSize:11}}>{p.zona.toUpperCase()}</span></td>
                   <td>{p.tipo}</td>
-                  <td className="num"><span className="mono">{p.ph}</span></td>
+                  <td className="num"><span className="mono">{GJ.fmtNum(p.ph)}</span></td>
                   <td className="num"><span className="mono">{p.cond.toLocaleString('es-CO')}</span></td>
                   <td className="num"><span className="mono">{GJ.fmtNum(p.sal, 2)}</span></td>
                   <td className="num"><span className="mono">{GJ.fmtNum(p.temp)}</span></td>
@@ -417,7 +417,7 @@ function PageAdmin() {
               <tbody>
                 {GJ.BUS_MATRIX.procesos.map((p, i) => (
                   <tr key={p.id}>
-                    <td><span className="mono" style={{color:'var(--ocre)', fontSize:11}}>{p.id}</span></td>
+                    <td><span className="mono" style={{color:'var(--ocre)', fontSize:11, whiteSpace:'nowrap'}}>{p.id}</span></td>
                     <td style={{fontSize:11}}>{p.name}<div className="mono" style={{fontSize:10, color:'var(--text-3)'}}>{p.freq} · {p.actor}</div></td>
                     {GJ.BUS_MATRIX.cells[i].map((c, j) => (
                       <td key={j} style={{textAlign:'center', fontFamily:'SF Mono, ui-monospace, JetBrains Mono, Menlo, Monaco, monospace', color: c==='✓'?'var(--teal)':'var(--text-3)', fontSize:14}}>{c}</td>

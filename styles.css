@@ -31,6 +31,8 @@
 }
 
 * { box-sizing: border-box; }
+/* El símbolo micro no se pasa a mayúsculas (µS/cm, no ΜS/CM) */
+.mu { text-transform: none; }
 html, body { margin: 0; padding: 0; }
 body {
   background: var(--bg);
