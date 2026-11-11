@@ -271,9 +271,9 @@ function PageAdmin() {
         crumb="DWH · ADMINISTRACIÓN"
         title="Administración"
         right={<>
-          <div><b>Schema:</b> dwh.fact_medicion_hidrica</div>
-          <div><b>Filas:</b> {allPoints.length.toLocaleString('es-CO')} / ~103.000 (2 años)</div>
-          <div><b>Particionamiento:</b> RANGE(año)</div>
+          <div><b>Tabla:</b> fact_medicion</div>
+          <div><b>Mediciones:</b> {allPoints.length.toLocaleString('es-CO')}</div>
+          <div><b>Datos:</b> {window.GJ_API_LIVE ? 'Supabase en vivo' : 'copia estática'}</div>
         </>}
       />
 
@@ -429,48 +429,51 @@ function PageAdmin() {
           </div>
 
           <div className="card card-pad">
-            <SecTitle title="DDL · fact_medicion_hidrica" sub="POSTGRES 14" />
+            <SecTitle title="Tabla de hechos · fact_medicion" sub="api/schema.sql" />
             <pre className="mono" style={{fontSize:10.5, color:'var(--text-2)', lineHeight:1.5, margin:0, whiteSpace:'pre-wrap'}}>
-{`CREATE TABLE dwh.fact_medicion_hidrica (
-  id_medicion    BIGSERIAL PRIMARY KEY,
-  id_punto       INTEGER NOT NULL,
-  id_tiempo      INTEGER NOT NULL,
-  id_uso_suelo   INTEGER,
-  id_metodo      INTEGER,
-  ph             DECIMAL(5,2),
-  conductividad  DECIMAL(10,2),
-  salinidad      DECIMAL(8,4),
-  temperatura    DECIMAL(5,2),
-  std_disueltos  DECIMAL(10,2),
-  temporada      VARCHAR(10),
-  estado_calidad VARCHAR(20),
-  fecha_carga    TIMESTAMPTZ DEFAULT NOW()
-) PARTITION BY RANGE (id_tiempo);`}
+{`CREATE TABLE fact_medicion (
+  id_medicion   VARCHAR(20) PRIMARY KEY,
+  id_punto      VARCHAR(20) REFERENCES dim_punto,
+  id_municipio  VARCHAR(3)  REFERENCES dim_municipio,
+  id_tiempo     INTEGER     REFERENCES dim_tiempo,
+  ph            DECIMAL(5,3),
+  conductividad DECIMAL(8,1),
+  salinidad     DECIMAL(6,3),
+  temperatura   DECIMAL(5,2),
+  std_mg_l      DECIMAL(8,1),
+  estado        VARCHAR(15),  -- Apta | Precaución | Crítico
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);`}
             </pre>
           </div>
 
           <div className="card card-pad">
-            <SecTitle title="Estado del pipeline ETL" sub="pg_cron · 02:00 UTC-5" />
-            <div style={{display:'flex', flexDirection:'column', gap:12, marginTop:4}}>
-              {[
-                ['Extracción CSV IDEAM',  'OK', GJ.ALL_POINTS.length.toLocaleString('es-CO') + ' filas', 'good'],
-                ['Validación rangos',     'OK', '12 anomalías', 'good'],
-                ['Transformación',        'OK', '34 → 11 cols', 'good'],
-                ['Carga DIM (upsert)',    'OK', '5 dims',       'good'],
-                ['Carga FACT (insert)',   'OK', '+' + GJ.ALL_POINTS.length.toLocaleString('es-CO') + ' filas', 'good'],
-                ['Reconciliación KPIs',   'EJECUTANDO', '6 / 8', 'warn'],
-              ].map(([name, status, meta, sev], i) => (
-                <div key={i} className="flex between center" style={{fontSize:12}}>
-                  <div className="flex center" style={{gap:10}}>
-                    <span className={'sev-dot ' + (sev==='good'?'info':'warn')} style={{marginTop:0}}/>
-                    <span>{name}</span>
+            <SecTitle title="Origen de los datos" sub={window.GJ_API_LIVE ? 'SUPABASE · EN VIVO' : 'COPIA ESTÁTICA'} />
+            <div style={{display:'flex', flexDirection:'column', gap:10, marginTop:4}}>
+              {(() => {
+                const pts = GJ.ALL_POINTS;
+                const seca = pts.filter(p => p.temporada === 'Seca');
+                const hum  = pts.filter(p => p.temporada === 'Húmeda');
+                const rango = arr => {
+                  if (!arr.length) return '—';
+                  const f = arr.map(p => p.fecha).sort();
+                  return f[0] === f[f.length - 1] ? GJ.fechaCorta(f[0]) : GJ.fechaCorta(f[0]) + ' – ' + GJ.fechaCorta(f[f.length - 1]);
+                };
+                const filas = [
+                  ['Fuente', window.GJ_API_LIVE ? 'API · Supabase' : 'real-data.js (API sin respuesta)'],
+                  ['Mediciones cargadas', pts.length.toLocaleString('es-CO')],
+                  ['Fuentes distintas', GJ.ULTIMA_POR_FUENTE.length.toLocaleString('es-CO')],
+                  ['Campaña época seca', `${seca.length.toLocaleString('es-CO')} · ${rango(seca)}`],
+                  ['Campaña época húmeda', `${hum.length.toLocaleString('es-CO')} · ${rango(hum)}`],
+                  ['Regla de clasificación', 'api/calidad.py'],
+                ];
+                return filas.map(([k, v]) => (
+                  <div key={k} className="flex between center" style={{fontSize:12, gap:12, paddingBottom:8, borderBottom:'1px solid var(--border)'}}>
+                    <span style={{color:'var(--text-2)'}}>{k}</span>
+                    <span className="mono" style={{fontSize:11, textAlign:'right'}}>{v}</span>
                   </div>
-                  <div className="flex center" style={{gap:10}}>
-                    <span className="mono" style={{fontSize:10, color:'var(--text-3)'}}>{meta}</span>
-                    <span className={'pill ' + (sev==='good'?'good':'warn')} style={{minWidth:80, justifyContent:'center'}}>{status}</span>
-                  </div>
-                </div>
-              ))}
+                ));
+              })()}
             </div>
           </div>
         </div>

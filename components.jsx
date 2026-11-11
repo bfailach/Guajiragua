@@ -446,7 +446,7 @@ function AlertRow({ a }) {
       <div className={'sev-dot ' + a.sev} />
       <div className="body">
         <div>{a.body}</div>
-        <small>{a.id} · {a.muni} · {a.code}</small>
+        <small>{a.point || a.id} · {a.muni} · {a.code}</small>
       </div>
       <div className="stamp">{a.time}</div>
     </div>

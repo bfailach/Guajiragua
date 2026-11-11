@@ -52,12 +52,8 @@ function PageFisicoquimica() {
   const pctDelta = (curr, ref) =>
     ref != null && ref !== 0 ? +((curr - ref) / Math.abs(ref) * 100).toFixed(1) : null;
 
-  const makeSpark = (from, to, n = 12) =>
-    Array.from({ length: n }, (_, i) => {
-      const t = i / (n - 1), ease = t * t * (3 - 2 * t);
-      const wave = Math.sin(i * 2.1 + 0.7) * 0.012;
-      return +(from + (to - from) * ease + Math.abs(from) * wave).toFixed(2);
-    });
+  // Mini gráfica con los dos valores reales: otra época → época seleccionada
+  const makeSpark = (from, to) => [from, to];
 
   // Comparar TASAS (%) en vez de conteos absolutos: seca tiene 1543 pts y húmeda solo 192,
   // por lo que comparar absolutos produce deltas de 700%+ que son artefactos del muestreo.
@@ -99,26 +95,26 @@ function PageFisicoquimica() {
                  unit={'/ ' + pts.length.toLocaleString('es-CO')}
                  delta={dActivos}
                  deltaLabel={eLbl}
-                 sparkData={epochRef ? makeSpark(epochRef.activos, activos) : [1480,1495,1502,1518,1530,1542,1551,1568,1574,1580,1582,activos]}
+                 sparkData={epochRef ? makeSpark(epochRef.activos, activos) : null}
                  color="#2c5fa6" />
         <KpiCard label="pH promedio"
                  value={ph.toFixed(2)}
                  delta={dPh}
                  deltaLabel={eLbl}
-                 sparkData={epochRef ? makeSpark(epochRef.ph, ph) : [7.30,7.34,7.32,7.28,7.24,7.18,7.21,7.26,7.31,7.33,7.30,ph]}
+                 sparkData={epochRef ? makeSpark(epochRef.ph, ph) : null}
                  color="#3a8580" />
         <KpiCard label="Puntos críticos"
                  value={criticos.toLocaleString('es-CO')}
                  delta={dCrit}
                  deltaLabel={eLbl}
-                 sparkData={epochRef ? makeSpark(epochRef.criticos, criticos) : [42,48,55,61,58,63,71,80,86,92,98,criticos]}
+                 sparkData={epochRef ? makeSpark(epochRef.criticos, criticos) : null}
                  color="#b5403d" />
         <KpiCard label="Cobertura hídrica"
                  value={cobertura.toFixed(1)}
                  unit="%"
                  delta={dCob}
                  deltaLabel={eLbl}
-                 sparkData={epochRef ? makeSpark(epochRef.cobertura, cobertura) : [88,89,90,91,91,92,92,93,93,93,93,cobertura]}
+                 sparkData={epochRef ? makeSpark(epochRef.cobertura, cobertura) : null}
                  color="#2e8b57" />
 
         {/* Filter chips */}
@@ -213,10 +209,15 @@ function PageFisicoquimica() {
         {/* Alertas activas */}
         <div className="card card-pad">
           <SecTitle title="Alertas activas"
-                    sub={GJ.ALERTS.length} />
+                    sub={GJ.ALERTS.length.toLocaleString('es-CO')} />
           <div style={{maxHeight:520, overflowY:'auto', marginTop:4}} className="scroll-y">
-            {GJ.ALERTS.map(a => <AlertRow key={a.id} a={a} />)}
+            {GJ.ALERTS.slice(0, 30).map(a => <AlertRow key={a.id} a={a} />)}
           </div>
+          {GJ.ALERTS.length > 30 && (
+            <div className="mono" style={{fontSize:10, color:'var(--text-2)', marginTop:10, letterSpacing:'0.06em'}}>
+              LAS 30 MÁS GRAVES DE {GJ.ALERTS.length.toLocaleString('es-CO')} · LISTA COMPLETA EN LA PESTAÑA ALERTAS
+            </div>
+          )}
         </div>
 
         {/* Mapa */}

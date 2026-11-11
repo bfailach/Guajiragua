@@ -180,34 +180,60 @@ const SERIES_COND_HUM  = buildSeries(ALL_POINTS, 'cond').map((v,i) => HUM_IDX .i
 const SERIES_TEMP_SECA = buildSeries(ALL_POINTS, 'temp').map((v,i) => SECA_IDX.includes(i) ? v : null);
 const SERIES_TEMP_HUM  = buildSeries(ALL_POINTS, 'temp').map((v,i) => HUM_IDX .includes(i) ? v : null);
 
-// ── Alertas — generadas desde datos reales ───────────────────────────────────
-const ALERTS = [];
-const sevCodes = [
-  { test: p => p.sal > 4.0,   sev:'crit', code:'SAL > 4.0',    label: p => `Salinidad ${p.sal.toFixed(3)} mS/cm en ${p.id} (${p.tipo})` },
-  { test: p => p.ph < 6.0,    sev:'crit', code:'pH < 6.0',     label: p => `Acidez anómala ${p.ph} en ${p.id} (${p.muniName})` },
-  { test: p => p.ph > 9.0,    sev:'crit', code:'pH > 9.0',     label: p => `Alcalinidad extrema ${p.ph} en ${p.id}` },
-  { test: p => p.cond > 5000, sev:'crit', code:'COND > 5000',  label: p => `Conductividad ${p.cond.toLocaleString('es-CO')} µS/cm en ${p.id}` },
-  { test: p => p.sal > 2.0 && p.sal <= 4.0, sev:'warn', code:'SAL > 2.0', label: p => `Salinidad creciente ${p.sal.toFixed(3)} en ${p.id} (${p.muniName})` },
-  { test: p => p.cond > 2500 && p.cond <= 5000, sev:'warn', code:'COND > 2500', label: p => `Conductividad elevada ${p.cond.toLocaleString('es-CO')} µS/cm en ${p.id}` },
-  { test: p => (p.ph < 6.5 || p.ph > 8.5) && p.ph >= 6.0 && p.ph <= 9.0, sev:'warn', code:'pH fuera rango', label: p => `pH ${p.ph} fuera del rango 6.5–8.5 en ${p.id}` },
-];
-
-let alertSeq = 220;
-const used = new Set();
-for (const rule of sevCodes) {
-  const matching = ALL_POINTS.filter(p => rule.test(p) && !used.has(p.id)).slice(0, rule.sev === 'crit' ? 3 : 2);
-  for (const p of matching) {
-    used.add(p.id);
-    ALERTS.push({
-      id:   `AL-2026-${String(alertSeq--).padStart(4,'0')}`,
-      sev:  rule.sev,
-      code: rule.code,
-      muni: p.muniName,
-      body: rule.label(p),
-      time: ALERTS.length < 3 ? `hace ${(ALERTS.length+1)*12} min` : ALERTS.length < 6 ? `hace ${ALERTS.length-2} h` : 'ayer',
-    });
-  }
+// ── Alertas — una por fuente que incumple la regla de calidad ────────────────
+// Se toma la medición más reciente de cada fuente (lugar de captación) y se
+// aplica la misma regla que clasificarEstado: estado Crítico → alerta crítica,
+// Precaución → advertencia. El código indica el criterio principal incumplido.
+const MESES_CORTOS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fechaCorta(iso) {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${MESES_CORTOS[m - 1]} ${y}`;
 }
+
+function criterioPrincipal(p) {
+  const c = UMBRALES.critico, w = UMBRALES.precaucion;
+  const has = v => v != null && !isNaN(v);
+  const cond = v => `${Number(v).toLocaleString('es-CO')} µS/cm`;
+  if (has(p.cond) && p.cond > c.condMax) return { code: 'COND > 5.000', value: cond(p.cond), body: `Conductividad muy alta (agua muy salada) · ${p.tipo.toLowerCase()}` };
+  if (has(p.sal) && p.sal > c.salMax)    return { code: 'SAL > 4,0',    value: `${p.sal} mS/cm`, body: `Salinidad muy alta · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph < c.phMin)       return { code: 'pH < 6,0',     value: `pH ${p.ph}`,     body: `Agua muy ácida · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph > c.phMax)       return { code: 'pH > 9,0',     value: `pH ${p.ph}`,     body: `Agua muy alcalina · ${p.tipo.toLowerCase()}` };
+  if (has(p.cond) && p.cond > w.condMax) return { code: 'COND > 2.500', value: cond(p.cond), body: `Conductividad elevada · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph < w.phMin)       return { code: 'pH < 6,5',     value: `pH ${p.ph}`,     body: `Acidez fuera de lo normal · ${p.tipo.toLowerCase()}` };
+  if (has(p.ph) && p.ph > w.phMax)       return { code: 'pH > 8,5',     value: `pH ${p.ph}`,     body: `Alcalinidad fuera de lo normal · ${p.tipo.toLowerCase()}` };
+  return null;
+}
+
+const ULTIMA_POR_FUENTE = (() => {
+  const m = new Map();
+  ALL_POINTS.forEach(p => {
+    const k = p.lat + '|' + p.lon + '|' + p.tipo;
+    const prev = m.get(k);
+    if (!prev || p.fecha > prev.fecha) m.set(k, p);
+  });
+  return Array.from(m.values());
+})();
+
+const ALERTS = ULTIMA_POR_FUENTE
+  .filter(p => p.estado === 'Crítico' || p.estado === 'Precaución')
+  .map(p => {
+    const c = criterioPrincipal(p) || { code: '—', value: '—', body: `Calidad fuera de rango · ${p.tipo.toLowerCase()}` };
+    return {
+      id:     'AL-' + p.id.replace(/^GJ-/, ''),
+      sev:    p.estado === 'Crítico' ? 'crit' : 'warn',
+      code:   c.code,
+      body:   c.body,
+      value:  c.value,
+      muni:   p.muniName,
+      muniId: p.muni,
+      point:  p.id,
+      fecha:  p.fecha,
+      time:   fechaCorta(p.fecha),
+      cond:   p.cond,
+    };
+  })
+  .sort((a, b) => (a.sev === b.sev ? 0 : a.sev === 'crit' ? -1 : 1) || (b.cond || 0) - (a.cond || 0) || a.point.localeCompare(b.point));
 
 // ── Kimball Bus Matrix ────────────────────────────────────────────────────────
 const BUS_MATRIX = {
@@ -247,6 +273,7 @@ const ACTORS = [
     buildSeries,
     SECA_IDX, HUM_IDX,
     UMBRALES, clasificarEstado, motivosEstado, fmtNum, fmtMiles,
+    ULTIMA_POR_FUENTE, fechaCorta,
   };
 }
 

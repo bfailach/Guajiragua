@@ -136,7 +136,7 @@ function buildPDFHtml({ pts, sample, muniStats, selectedVars, varCols, periodo, 
 
 <div class="footer">
   Guajiragua · Sistema BI Hidrogeológico · Fuente: Mapa_PH_Guajira.csv (SGC / Corpoguajira) ·
-  Generado ${new Date().toLocaleString('es-CO')} · SHA-256 firmado · TLS 1.3
+  Generado ${new Date().toLocaleString('es-CO')}
 </div>
 
 <script>window.addEventListener('load', () => setTimeout(() => window.print(), 400));<\/script>
@@ -159,7 +159,6 @@ function ReportGenerator() {
     { id:'csv',  name:'CSV',  desc:'Tabular crudo · UTF-8 · separador ;' },
     { id:'xlsx', name:'XLSX', desc:'Multi-hoja · dashboards embebidos' },
   ];
-  const FRECUENCIAS = ['Único','Diaria','Semanal','Quincenal','Mensual'];
   const VARIABLES   = ['pH','Conductividad','Salinidad','Temperatura','STD','Profundidad'];
   const KPIS_ALL    = ['IPH · Potabilidad','IDA · Deterioro','Variación salinidad','Tasa críticos','Cobertura activa','pH por zona'];
 
@@ -169,22 +168,11 @@ function ReportGenerator() {
   const [municipios, setMunicipios]   = useState(new Set(GJ.MUNICIPIOS.map(m => m.id)));
   const [variables, setVariables]     = useState(new Set(['pH','Conductividad','Salinidad','STD']));
   const [kpis, setKpis]               = useState(new Set(['Tasa críticos','IPH · Potabilidad']));
-  const [frecuencia, setFrecuencia]   = useState('Único');
   const [formato, setFormato]         = useState('pdf');
-  const [destinatarios, setDestinatarios] = useState(['corpoguajira.bi@corpoguajira.gov.co', 'monitoreo@ideam.gov.co']);
-  const [emailInput, setEmailInput]   = useState('');
   const [generating, setGenerating]   = useState(null); // null | 'progress' | 'done' | 'error'
 
-  const [allRecents, setAllRecents] = useState([
-    { id:'RP-2026-0014', title:'Calidad fisicoquímica · marzo 2026',    tipo:'calidad',   fmt:'PDF',  fecha:'2026-04-01 02:08', user:'admin',            size:'14.3 MB' },
-    { id:'RP-2026-0013', title:'Alertas IPH<50 · semana 13',            tipo:'alertas',   fmt:'PDF',  fecha:'2026-03-29 02:04', user:'corpoguajira.bi', size:'8.1 MB'  },
-    { id:'RP-2026-0012', title:'Cobertura captadores · Q1 2026',        tipo:'cobertura', fmt:'XLSX', fecha:'2026-03-27 02:05', user:'monitoreo@ideam', size:'6.4 MB'  },
-    { id:'RP-2026-0011', title:'Tendencia salinidad · feb-mar',         tipo:'sostenib',  fmt:'PDF',  fecha:'2026-03-22 02:03', user:'admin',            size:'11.8 MB' },
-    { id:'RP-2026-0010', title:'Exportación FACT_MEDICION_HIDRICA · Q1',tipo:'custom',    fmt:'CSV',  fecha:'2026-03-15 02:02', user:'admin',            size:'2.6 MB'  },
-    { id:'RP-2026-0009', title:'Calidad fisicoquímica · febrero 2026',  tipo:'calidad',   fmt:'PDF',  fecha:'2026-03-01 02:08', user:'corpoguajira.bi', size:'13.7 MB' },
-    { id:'RP-2026-0008', title:'Alertas críticas · enero 2026',         tipo:'alertas',   fmt:'PDF',  fecha:'2026-02-04 02:05', user:'corpoguajira.bi', size:'7.9 MB'  },
-    { id:'RP-2026-0007', title:'Sostenibilidad acuífero · 2025 anual',  tipo:'sostenib',  fmt:'XLSX', fecha:'2026-01-08 02:08', user:'admin',            size:'24.1 MB' },
-  ]);
+  // Reportes generados en esta sesión (no hay historial guardado en el servidor)
+  const [allRecents, setAllRecents] = useState([]);
 
   const selectedType = REPORT_TYPES.find(t => t.id === tipo);
 
@@ -207,15 +195,7 @@ function ReportGenerator() {
     else setMunicipios(new Set(GJ.MUNICIPIOS.map(m => m.id)));
   }
 
-  function addEmail() {
-    if (!emailInput || !emailInput.includes('@')) return;
-    if (!destinatarios.includes(emailInput)) setDestinatarios([...destinatarios, emailInput]);
-    setEmailInput('');
-  }
 
-  function removeEmail(e) {
-    setDestinatarios(destinatarios.filter(x => x !== e));
-  }
 
   const muniN     = municipios.size;
   const totalRows = Math.round((muniN / GJ.MUNICIPIOS.length) * GJ.ALL_POINTS.length);
@@ -349,11 +329,7 @@ function ReportGenerator() {
 
         // ── Agregar a historial de recientes ─────────────────────────────
         setAllRecents(prev => {
-          const maxNum = prev.reduce((mx, r) => {
-            const n = parseInt(r.id.split('-')[2]);
-            return isNaN(n) ? mx : Math.max(mx, n);
-          }, 14);
-          const newId = 'RP-2026-' + String(maxNum + 1).padStart(4, '0');
+          const newId = 'Reporte ' + (prev.length + 1);
           return [{
             id:    newId,
             title: capturedSelectedType.name + ' · ' + capturedPeriodo,
@@ -361,7 +337,7 @@ function ReportGenerator() {
             fmt:   capturedFormato.toUpperCase(),
             fecha: new Date().toISOString().slice(0, 16).replace('T', ' '),
             user:  (window.GJ_AUTH && window.GJ_AUTH.session() && window.GJ_AUTH.session().usuario) || 'admin',
-            size:  capturedSizeMb + ' MB',
+            size:  '≈ ' + capturedSizeMb + ' MB',
           }, ...prev];
         });
 
@@ -387,10 +363,6 @@ function ReportGenerator() {
     ? allRecents
     : allRecents.filter(r => r.tipo === filterMap[recentFilter]);
 
-  // ── Descarga de reportes históricos ───────────────────────────────────────
-  function downloadRecent(r) {
-    if (window.showToast) window.showToast('Descargando ' + r.id + ' (' + r.fmt + ' · ' + r.size + ')', 'success');
-  }
 
   const canGenerate = generating !== 'progress' && variables.size > 0 && municipios.size > 0;
   const btnBg = generating === 'done' ? '#2e8b57' : generating === 'error' ? '#b5403d' : '#0f0f0f';
@@ -405,9 +377,9 @@ function ReportGenerator() {
           <div className="flex between center">
             <div>
               <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.18em', textTransform:'uppercase'}}>
-                HISTÓRICO · DWH.REPORTES
+                ESTA SESIÓN
               </div>
-              <h3 style={{margin:'4px 0 0', fontSize:18, fontWeight:500}}>Reportes recientes</h3>
+              <h3 style={{margin:'4px 0 0', fontSize:18, fontWeight:500}}>Reportes generados</h3>
             </div>
             <span className="pill neut" style={{borderRadius:3}}>{recents.length} archivos</span>
           </div>
@@ -445,11 +417,7 @@ function ReportGenerator() {
                     <span className="mono" style={{fontSize:10, color:'var(--text-3)', padding:'1px 6px', border:'1px solid var(--border-2)', borderRadius:2, letterSpacing:'0.06em'}}>{r.fmt}</span>
                     <span className="mono tabular" style={{fontSize:10.5, color:'var(--text-3)'}}>{r.size}</span>
                   </div>
-                  <button title={'Descargar ' + r.id}
-                    onClick={() => downloadRecent(r)}
-                    style={{background:'none', border:'1px solid var(--border-2)', borderRadius:2, cursor:'pointer', color:'var(--text-2)', fontSize:11, padding:'3px 9px'}}>
-                    ↓
-                  </button>
+
                 </div>
                 <div className="mono" style={{fontSize:9.5, color:'var(--text-3)', marginTop:8, letterSpacing:'0.04em'}}>
                   por <span style={{color:'var(--text-2)'}}>{r.user}</span>
@@ -459,13 +427,11 @@ function ReportGenerator() {
           })}
         </div>
 
-        <div className="card-pad" style={{borderTop:'1px solid var(--border)', paddingTop:12, paddingBottom:12}}>
-          <button className="mono"
-            onClick={() => { if (window.showToast) window.showToast('Módulo de histórico completo — disponible en v3.0'); }}
-            style={{background:'none', border:'none', fontSize:10.5, color:'var(--text-2)', letterSpacing:'0.12em', textTransform:'uppercase', cursor:'pointer', width:'100%', textAlign:'center', padding:'4px 0'}}>
-            VER HISTÓRICO COMPLETO ({allRecents.length + 32}) ↗
-          </button>
-        </div>
+        {allRecents.length === 0 && (
+          <div className="card-pad" style={{color:'var(--text-2)', fontSize:13, lineHeight:1.5}}>
+            Aún no has generado reportes en esta sesión. Los que generes aparecerán aquí; el archivo se descarga en el momento de generarlo.
+          </div>
+        )}
       </div>
 
       {/* RIGHT — Generator */}
@@ -570,44 +536,6 @@ function ReportGenerator() {
               </FormGroup>
             </div>
 
-            <FormGroup label="06 · Frecuencia de envío">
-              <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
-                {FRECUENCIAS.map(f => (
-                  <button key={f}
-                    className={'chip' + (frecuencia === f ? ' active' : '')}
-                    onClick={() => setFrecuencia(f)}
-                    style={{padding:'7px 12px', fontSize:12}}>
-                    {f}
-                  </button>
-                ))}
-              </div>
-              {frecuencia !== 'Único' && (
-                <div className="mono" style={{fontSize:10.5, color:'var(--text-3)', marginTop:8, letterSpacing:'0.05em'}}>
-                  ↳ Próxima ejecución · {nextRun(frecuencia)} · cron via pg_cron
-                </div>
-              )}
-            </FormGroup>
-
-            <FormGroup label="07 · Destinatarios" right={<span className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>{destinatarios.length} CUENTAS</span>}>
-              <div style={{display:'flex', flexWrap:'wrap', gap:6, marginBottom:8}}>
-                {destinatarios.map(e => (
-                  <span key={e} className="chip" style={{padding:'5px 9px', fontSize:11.5, color:'var(--text)', borderColor:'#cccccc'}}>
-                    {e}
-                    <button onClick={() => removeEmail(e)} style={{background:'none', border:'none', cursor:'pointer', color:'var(--text-3)', padding:0, marginLeft:4}}>✕</button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex center" style={{gap:8}}>
-                <div className="search" style={{flex:1, width:'auto'}}>
-                  <span className="mono" style={{fontSize:11, color:'var(--text-3)'}}>@</span>
-                  <input type="email" placeholder="añadir destinatario…"
-                    value={emailInput}
-                    onChange={e => setEmailInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && addEmail()} />
-                </div>
-                <button className="chip" onClick={addEmail} style={{padding:'7px 14px', fontSize:12}}>+ Añadir</button>
-              </div>
-            </FormGroup>
           </div>
 
           {/* RIGHT pane — Summary & Actions */}
@@ -626,11 +554,9 @@ function ReportGenerator() {
 
             <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:0, borderBottom:'1px solid var(--border)', marginBottom:14}}>
               <StatRow label="Periodo"       value={periodo} />
-              <StatRow label="Frecuencia"    value={frecuencia} />
               <StatRow label="Municipios"    value={`${municipios.size}/${GJ.MUNICIPIOS.length}`} />
               <StatRow label="Variables"     value={variables.size} />
               <StatRow label="KPIs"          value={kpis.size} />
-              <StatRow label="Destinatarios" value={destinatarios.length} />
               <StatRow label="Filas est."    value={totalRows.toLocaleString('es-CO')} />
               <StatRow label="Páginas est."  value={pagesEst} />
             </div>
@@ -686,8 +612,6 @@ function ReportGenerator() {
               {formato === 'pdf'  && '↳ Se abre vista de impresión en nueva pestaña — Ctrl+P / ⌘P para guardar como PDF.'}
               {formato === 'csv'  && '↳ CSV con separador ; y BOM UTF-8 — compatible Excel/LibreOffice.'}
               {formato === 'xlsx' && '↳ Tres hojas: Datos · Resumen municipios · KPIs — generado con SheetJS.'}
-              {!formato           && '↳ Job_id se enviará al cron de pg_cron · destinatarios recibirán enlace.'}
-              <br/>↳ SHA-256 firmado · TLS 1.3
             </div>
           </div>
         </div>
@@ -749,11 +673,5 @@ function StatRow({ label, value }) {
   );
 }
 
-function nextRun(freq) {
-  const now  = new Date();
-  const days = { 'Diaria':1, 'Semanal':7, 'Quincenal':14, 'Mensual':30 }[freq] || 0;
-  const d    = new Date(+now + days * 86400000);
-  return d.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' }) + ' · 02:00 UTC-5';
-}
 
 window.ReportGenerator = ReportGenerator;

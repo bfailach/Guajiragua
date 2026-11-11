@@ -114,15 +114,17 @@ Cada medición se clasifica con una regla única, definida en `api/calidad.py`. 
 
 Un valor ausente no activa ningún criterio. Si se cambia un umbral, hay que cambiarlo en `api/calidad.py`, en `mock-data.jsx` y en `api/migraciones/001_valores_ausentes.sql`.
 
-Las alertas se generan con estos umbrales:
+Hay una alerta por cada fuente cuya medición más reciente queda en `Crítico` (alerta crítica) o `Precaución` (advertencia). El código de la alerta indica el criterio principal que incumple, con el mismo orden de la regla:
 
 | Código | Condición | Severidad |
 |--------|-----------|-----------|
-| `SAL > 4.0` | Salinidad > 4,0 mS/cm | Crítica |
-| `COND > 5000` | Conductividad > 5.000 µS/cm | Crítica |
-| `pH < 6.0` | pH < 6,0 | Crítica |
-| `pH > 9.0` | pH > 9,0 | Crítica |
-| `SAL > 2.0` | 2,0 < salinidad ≤ 4,0 mS/cm | Advertencia |
+| `COND > 5.000` | Conductividad > 5.000 µS/cm | Crítica |
+| `SAL > 4,0` | Salinidad > 4,0 mS/cm | Crítica |
+| `pH < 6,0` / `pH > 9,0` | pH fuera de 6,0–9,0 | Crítica |
+| `COND > 2.500` | Conductividad > 2.500 µS/cm | Advertencia |
+| `pH < 6,5` / `pH > 8,5` | pH fuera de 6,5–8,5 | Advertencia |
+
+La fecha de cada alerta es la de la medición. No hay detección en tiempo real: las alertas se recalculan cada vez que se cargan los datos.
 
 Indicadores principales:
 
@@ -279,7 +281,7 @@ def crear_medicion(...):
 
 - **Series mensuales estimadas.** Los datos cubren dos campañas. La serie de 12 meses del análisis de tendencias se obtiene aplicando factores estacionales a los promedios de cada campaña; los meses intermedios no son mediciones directas.
 - **Registro de puntos sin persistencia.** El formulario de nuevo punto de monitoreo valida los datos pero aún no los envía a la API.
-- **Reportes programados.** La programación y el envío por correo de reportes no están implementados. La generación inmediata en PDF, CSV y XLSX sí funciona.
+- **Reportes.** El generador produce y descarga reportes en PDF, CSV y XLSX en el momento. No hay programación, envío por correo ni historial guardado en el servidor: la lista de reportes generados se limita a la sesión actual.
 - **Alertas reconocidas.** El reconocimiento de alertas se pierde al recargar la página.
 - **Salinidades inconsistentes.** En cuatro mediciones (GJ-00165, GJ-00200, GJ-01612, GJ-01717) la salinidad es entre 2 y 10 veces mayor que la correspondiente a su conductividad. En GJ-00165 los sólidos disueltos sí corresponden a la conductividad; en las otras tres también son anómalos. Probablemente son errores de registro. Se conservan tal como están en la fuente y las cuatro quedan clasificadas como `Crítico` por salinidad > 4,0 mS/cm.
 - **Rendimiento del frontend.** React se carga en modo desarrollo y el JSX se transpila en el navegador. Para producción se recomienda un paso de compilación.
