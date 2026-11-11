@@ -410,7 +410,11 @@ function Heatmap({ rows, cols, getValue, format = v => v, scale }) {
 }
 
 // ── Dual-line chart (seca vs húmeda) ─────────────────────────────
-function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c97a2b', colorB = '#2c5fa6', yMin, yMax, unit, tickFormat }) {
+// realIdx: índices de los meses con medición real. Si se indica, el resto de la
+// curva se dibuja punteada (estimada) y los meses medidos se destacan.
+function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c97a2b', colorB = '#2c5fa6', yMin, yMax, unit, tickFormat, realIdx }) {
+  const hayEstimados = Array.isArray(realIdx);
+  const esReal = i => !hayEstimados || realIdx.includes(i);
   const w = 760, h = 240, padL = 40, padR = 16, padT = 16, padB = 28;
   const clipId = useMemo(() => 'dlc-' + Math.random().toString(36).slice(2), []);
   const all = [...seriesA, ...seriesB].filter(v => v != null);
@@ -424,13 +428,20 @@ function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c9
   const step = (w - padL - padR) / (months.length - 1);
   const yScale = (v) => padT + (1 - (v - min) / (max - min)) * (h - padT - padB);
   function line(data, color) {
-    const pts = data.map((v, i) => v == null ? null : [padL + i * step, yScale(v)]).filter(Boolean);
+    const pts = data.map((v, i) => v == null ? null : [padL + i * step, yScale(v), i, v]).filter(Boolean);
     if (pts.length < 2) return null;
     const d = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
     return (
       <g>
-        <path d={d} fill="none" stroke={color} strokeWidth="1.5" />
-        {pts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="2.4" fill="#0f1419" stroke={color} strokeWidth="1.2"/>)}
+        <path d={d} fill="none" stroke={color} strokeWidth="1.5"
+              strokeDasharray={hayEstimados ? '5 4' : undefined} opacity={hayEstimados ? 0.75 : 1} />
+        {pts.map(p => esReal(p[2])
+          ? <circle key={p[2]} cx={p[0]} cy={p[1]} r={hayEstimados ? 5 : 2.4} fill={hayEstimados ? color : '#0f1419'} stroke={hayEstimados ? '#ffffff' : color} strokeWidth={hayEstimados ? 1.5 : 1.2}>
+              <title>{`${months[p[2]]} · medido · ${tickFormat ? tickFormat(p[3]) : GJ.fmtNum(p[3], 2)}`}</title>
+            </circle>
+          : <circle key={p[2]} cx={p[0]} cy={p[1]} r="2" fill="#ffffff" stroke={color} strokeWidth="1">
+              <title>{`${months[p[2]]} · estimado · ${tickFormat ? tickFormat(p[3]) : GJ.fmtNum(p[3], 2)}`}</title>
+            </circle>)}
       </g>
     );
   }
@@ -453,6 +464,8 @@ function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c9
         <div className="legend">
           <span><span className="sw" style={{background: colorA}}/>{labelA}</span>
           <span><span className="sw" style={{background: colorB}}/>{labelB}</span>
+          {hayEstimados && <span><span style={{display:'inline-block', width:10, height:10, borderRadius:'50%', background:'#0f0f0f', marginRight:6, verticalAlign:'middle'}}/>Medido</span>}
+          {hayEstimados && <span><span style={{display:'inline-block', width:16, borderTop:'1.5px dashed #0f0f0f', marginRight:6, verticalAlign:'middle'}}/>Estimado</span>}
         </div>
         <div className="mono" style={{fontSize:10, color:'var(--text-3)'}}>{conMu(unit)}</div>
       </div>
@@ -468,7 +481,8 @@ function DualLineChart({ months, seriesA, seriesB, labelA, labelB, colorA = '#c9
           {line(seriesB, colorB)}
         </g>
         {months.map((m, i) => (
-          <text key={m} x={padL + i * step} y={h - 8} textAnchor="middle" fontSize="9" fontFamily="JetBrains Mono, monospace" fill="#6b6b6b">{m}</text>
+          <text key={m} x={padL + i * step} y={h - 8} textAnchor="middle" fontSize="9" fontFamily="JetBrains Mono, monospace"
+                fill={hayEstimados && esReal(i) ? '#0f0f0f' : '#6b6b6b'} fontWeight={hayEstimados && esReal(i) ? 700 : 400}>{m}</text>
         ))}
       </svg>
     </div>

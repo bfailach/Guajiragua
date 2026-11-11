@@ -31,19 +31,15 @@ function PageTendencias() {
     temp: { label:'Temperatura',  unit:'°C'          },
   }[variable];
 
-  // ── Anotaciones dinámicas desde las series reales ──────────────────────────
-  const nonNullA = seriesA.filter(v => v !== null);
-  const nonNullB = seriesB.filter(v => v !== null);
-  const peakSeca   = nonNullA.length ? Math.max(...nonNullA) : 0;
-  const valleyHum  = nonNullB.length ? Math.min(...nonNullB) : 0;
-  const peakMonthI = seriesA.indexOf(peakSeca);
-  const valMonthI  = seriesB.indexOf(valleyHum);
-  const varPct     = valleyHum > 0
-    ? GJ.fmtNum((peakSeca - valleyHum) / valleyHum * 100, 1) + '%'
-    : '—';
+  // ── Valores medidos: febrero (época seca) y octubre (época húmeda) ─────────
+  // Son los únicos meses con medición; el resto de la curva es una estimación.
+  const MES_SECA = 1, MES_HUM = 9;
+  const medSeca = seriesA[MES_SECA];
+  const medHum  = seriesB[MES_HUM];
+  const difPct  = medSeca != null && medHum ? GJ.fmtNum((medSeca - medHum) / medHum * 100, 1) + ' %' : '—';
 
   function fmtAnnot(v) {
-    if (!v) return '—';
+    if (v == null) return '—';
     if (variable === 'cond') return v.toLocaleString('es-CO', {maximumFractionDigits:0});
     if (variable === 'temp') return GJ.fmtNum(v, 1);
     if (variable === 'sal')  return GJ.fmtNum(v, 3);
@@ -51,8 +47,10 @@ function PageTendencias() {
   }
 
   const zonaLabel = zona === 'Todas' ? 'La Guajira' : zona + ' Guajira';
-  const PEAK_LOC  = peakMonthI >= 0 ? GJ.MONTHS[peakMonthI] + ' · ' + zonaLabel : '—';
-  const VAL_LOC   = valMonthI  >= 0 ? GJ.MONTHS[valMonthI]  + ' · ' + zonaLabel : '—';
+  const fechaCampana = t => {
+    const xs = GJ.ALL_POINTS.filter(p => p.temporada === t).map(p => p.fecha).sort();
+    return xs.length ? GJ.fechaCorta(xs[xs.length - 1]) : '—';
+  };
 
   // ── KPIs calculados desde datos reales ────────────────────────────────────
   // Mini gráfica con los dos valores reales (época húmeda → época seca)
@@ -89,10 +87,9 @@ function PageTendencias() {
   const dIDA       = idaHum > 0 ? +((idaSeca - idaHum) / idaHum * 100).toFixed(1) : null;
 
   const salSecaFull = GJ.buildSeries(zonaPts, 'sal');
-  const salSecaNN   = salSecaFull.filter((v, i) => v !== null && GJ.SECA_IDX.includes(i));
-  const salHumNN    = salSecaFull.filter((v, i) => v !== null && GJ.HUM_IDX.includes(i));
-  const salPk       = salSecaNN.length ? Math.max(...salSecaNN) : 0;
-  const salVl       = salHumNN.length  ? Math.min(...salHumNN)  : 0;
+  // Solo los meses medidos: febrero (seca, índice 1) y octubre (húmeda, índice 9)
+  const salPk       = salSecaFull[1] || 0;
+  const salVl       = salSecaFull[9] || 0;
   const varSalPct   = salVl > 0 ? +((salPk - salVl) / salVl * 100).toFixed(1) : 0;
 
   const tasaCrit     = +(zonaPts.filter(p => p.estado === 'Crítico').length / Math.max(zonaPts.length, 1) * 100).toFixed(1);
@@ -136,6 +133,7 @@ function PageTendencias() {
             seriesA={seriesA} seriesB={seriesB}
             labelA="Época seca" labelB="Época húmeda"
             unit={variableMeta.unit}
+            realIdx={[MES_SECA, MES_HUM]}
             tickFormat={v => {
               if (variable === 'cond') return v.toLocaleString('es-CO', {maximumFractionDigits:0});
               if (variable === 'temp') return GJ.fmtNum(v, 1);
@@ -144,34 +142,35 @@ function PageTendencias() {
             }} />
 
           {/* Nota metodológica */}
-          <div className="mono" style={{fontSize:9, color:'var(--text-3)', marginTop:10, letterSpacing:'0.06em', lineHeight:1.6}}>
-            * Curva mensual estimada desde campañas reales: seca feb-2026 (1.543 pts) y húmeda oct-2025 (192 pts). Valores intermedios son proyección con factores estacionales calibrados, no mediciones directas.
-          </div>
+          <p style={{fontSize:13, color:'var(--text-2)', margin:'12px 0 0', lineHeight:1.5, padding:'10px 12px', background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:3}}>
+            Solo hay mediciones en <b style={{fontWeight:600, color:'var(--text)'}}>febrero</b> (época seca) y <b style={{fontWeight:600, color:'var(--text)'}}>octubre</b> (época húmeda), marcadas con puntos llenos.
+            Los demás meses son una estimación con factores estacionales, no mediciones.
+          </p>
 
-          {/* Annotation strip — valores calculados desde las series reales */}
+          {/* Valores medidos y diferencia entre épocas */}
           <div className="grid" style={{gridTemplateColumns:'repeat(3, 1fr)', gap:12, marginTop:20}}>
             <div style={{borderLeft:'2px solid #c97a2b', paddingLeft:12}}>
-              <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>PICO ÉPOCA SECA</div>
+              <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>MEDICIÓN ÉPOCA SECA</div>
               <div className="mono tabular" style={{fontSize:20, color:'var(--text)', marginTop:4}}>
-                {fmtAnnot(peakSeca)}
+                {fmtAnnot(medSeca)}
                 <span style={{fontSize:11, color:'var(--text-3)', marginLeft:4}}>{conMu(variableMeta.unit)}</span>
               </div>
-              <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>{PEAK_LOC}</div>
+              <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>{fechaCampana('Seca')} · {zonaLabel}</div>
             </div>
             <div style={{borderLeft:'2px solid #2c5fa6', paddingLeft:12}}>
-              <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>VALLE ÉPOCA HÚMEDA</div>
+              <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>MEDICIÓN ÉPOCA HÚMEDA</div>
               <div className="mono tabular" style={{fontSize:20, color:'var(--text)', marginTop:4}}>
-                {fmtAnnot(valleyHum)}
+                {fmtAnnot(medHum)}
                 <span style={{fontSize:11, color:'var(--text-3)', marginLeft:4}}>{conMu(variableMeta.unit)}</span>
               </div>
-              <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>{VAL_LOC}</div>
+              <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>{fechaCampana('Húmeda')} · {zonaLabel}</div>
             </div>
             <div style={{borderLeft:'2px solid #b5403d', paddingLeft:12}}>
-              <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>VARIACIÓN ESTACIONAL</div>
+              <div className="mono" style={{fontSize:10, color:'var(--text-3)', letterSpacing:'0.1em'}}>DIFERENCIA SECA VS HÚMEDA</div>
               <div className="mono tabular" style={{fontSize:20, color:'var(--text)', marginTop:4}}>
-                {varPct}
+                {difPct}
               </div>
-              <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>Amplitud anual</div>
+              <div style={{fontSize:11, color:'var(--text-2)', marginTop:4}}>Entre las dos mediciones</div>
             </div>
           </div>
         </div>
@@ -182,7 +181,7 @@ function PageTendencias() {
           <div className="grid" style={{gridTemplateColumns:'1fr 1fr', gap:12, marginTop:8}}>
             <KpiCard label="IPH · Potabilidad"      value={GJ.fmtNum(iphVal)}     delta={dIPH}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(iphHum,       iphSeca)}       color="#2e8b57" />
             <KpiCard label="IDA · Deterioro acuífero" subirEsMalo value={GJ.fmtNum(idaVal)}     delta={dIDA}  deltaLabel="seca vs húmeda"  sparkData={mkSpark(idaHum,       idaSeca)}       color="#b5403d" />
-            <KpiCard label="Variación salinidad"      value={GJ.fmtNum(varSalPct)}  unit="%"  delta={null} deltaLabel="amplitud anual"    sparkData={mkSpark(salVl,        salPk)}         color="#c97a2b" />
+            <KpiCard label="Variación salinidad"      value={GJ.fmtNum(varSalPct)}  unit="%"  delta={null} deltaLabel="seca vs húmeda, medido"    sparkData={mkSpark(salVl,        salPk)}         color="#c97a2b" />
             <KpiCard label="Tasa puntos críticos" subirEsMalo     value={GJ.fmtNum(tasaCrit)}   unit="%"  delta={dTasa} deltaLabel="vs época seca"   sparkData={mkSpark(tasaCritSeca, tasaCrit)}     color="#b5403d" />
           </div>
 

@@ -80,7 +80,15 @@ const GEOJSON_URLS = [
   'https://raw.githubusercontent.com/TakaraDasein/JSON-Colombia/main/colombia-por-municipios.geojson',
 ];
 
-async function fetchFirst(urls) {
+// Los contornos se descargan una sola vez por visita y se reutilizan al volver
+// a la sección.
+let _contornos = null;
+function fetchFirst(urls) {
+  if (!_contornos) _contornos = descargarPrimero(urls).then(r => { if (!r) _contornos = null; return r; });
+  return _contornos;
+}
+
+async function descargarPrimero(urls) {
   for (const url of urls) {
     try {
       const r = await fetch(url);
@@ -127,9 +135,14 @@ function MapGuajira({ selected, onSelect, filter = 'estado', temporada }) {
 
     mapRef.current = map;
 
+    // Si se sale de la sección antes de que lleguen los contornos, el mapa ya no
+    // existe: la respuesta se descarta (antes intentaba dibujar sobre él y fallaba).
+    let vivo = true;
+
     // Load GeoJSON polygons asynchronously
     (async () => {
       const fetched = await fetchFirst(GEOJSON_URLS);
+      if (!vivo) return;
       if (!fetched) {
         addCircleFallback(map, aggByMuni, onSelect, selectedFromRef, polyLayerRef, labelLayerRef, filter);
         setStatus('circles');
@@ -152,6 +165,7 @@ function MapGuajira({ selected, onSelect, filter = 'estado', temporada }) {
     })();
 
     return () => {
+      vivo = false;
       map.remove();
       mapRef.current = null;
     };

@@ -239,25 +239,6 @@ const ALERTS = ULTIMA_POR_FUENTE
   })
   .sort((a, b) => (a.sev === b.sev ? 0 : a.sev === 'crit' ? -1 : 1) || (b.cond || 0) - (a.cond || 0) || a.point.localeCompare(b.point));
 
-// ── Kimball Bus Matrix ────────────────────────────────────────────────────────
-const BUS_MATRIX = {
-  procesos: [
-    { id:'P1', name:'Registro de puntos de monitoreo',     freq:'Continua',  actor:'IDEAM / SGC' },
-    { id:'P2', name:'Medición fisicoquímica época seca',   freq:'Semestral', actor:'Técnicos de campo' },
-    { id:'P3', name:'Medición fisicoquímica época húmeda', freq:'Semestral', actor:'Técnicos de campo' },
-    { id:'P4', name:'Clasificación de uso del suelo',      freq:'Anual',     actor:'Corpoguajira' },
-    { id:'P5', name:'Evaluación del estado de captadores', freq:'Semestral', actor:'Técnicos' },
-  ],
-  dims: ['DIM_TIEMPO','DIM_UBICACION','DIM_PUNTO_MONITOREO','DIM_USO_SUELO','DIM_METODO'],
-  cells: [
-    ['✓','✓','✓','·','·'],
-    ['✓','✓','✓','·','✓'],
-    ['✓','✓','✓','·','✓'],
-    ['·','✓','·','✓','·'],
-    ['✓','✓','✓','·','✓'],
-  ],
-};
-
 const ACTORS = [
   { code:'GOB', name:'Gobernación de La Guajira', role:'Política pública' },
   { code:'CGJ', name:'Corpoguajira',              role:'Autoridad ambiental' },
@@ -273,7 +254,7 @@ const ACTORS = [
     SERIES_SAL_SECA,  SERIES_SAL_HUM,
     SERIES_COND_SECA, SERIES_COND_HUM,
     SERIES_TEMP_SECA, SERIES_TEMP_HUM,
-    ALERTS, BUS_MATRIX, ACTORS, distByEstado, TIPOS, USOS, METODOS,
+    ALERTS, ACTORS, distByEstado, TIPOS, USOS, METODOS,
     buildSeries,
     SECA_IDX, HUM_IDX,
     UMBRALES, clasificarEstado, motivosEstado, fmtNum, fmtMiles,

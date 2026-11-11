@@ -399,55 +399,8 @@ function PageAdmin() {
           </div>
         </div>
 
-        {/* Bus matrix sidebar */}
+        {/* Columna lateral: estructura y origen de los datos */}
         <div style={{display:'flex', flexDirection:'column', gap:16}}>
-          <div className="card card-pad">
-            <SecTitle title="Enterprise Bus Matrix" sub="KIMBALL · PROCESOS × DIMS" />
-            <table className="tbl" style={{marginTop:6}}>
-              <thead>
-                <tr>
-                  <th style={{width:42}}>P#</th>
-                  <th>Proceso</th>
-                  {GJ.BUS_MATRIX.dims.map(d => (
-                    <th key={d} style={{textAlign:'center', writingMode:'vertical-rl', transform:'rotate(180deg)', padding:'8px 4px', minWidth:24}}>
-                      {d.replace('DIM_','')}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {GJ.BUS_MATRIX.procesos.map((p, i) => (
-                  <tr key={p.id}>
-                    <td><span className="mono" style={{color:'var(--ocre)', fontSize:11, whiteSpace:'nowrap'}}>{p.id}</span></td>
-                    <td style={{fontSize:11}}>{p.name}<div className="mono" style={{fontSize:10, color:'var(--text-3)'}}>{p.freq} · {p.actor}</div></td>
-                    {GJ.BUS_MATRIX.cells[i].map((c, j) => (
-                      <td key={j} style={{textAlign:'center', fontFamily:'SF Mono, ui-monospace, JetBrains Mono, Menlo, Monaco, monospace', color: c==='✓'?'var(--teal)':'var(--text-3)', fontSize:14}}>{c}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="card card-pad">
-            <SecTitle title="Tabla de hechos · fact_medicion" sub="api/schema.sql" />
-            <pre className="mono" style={{fontSize:10.5, color:'var(--text-2)', lineHeight:1.5, margin:0, whiteSpace:'pre-wrap'}}>
-{`CREATE TABLE fact_medicion (
-  id_medicion   VARCHAR(20) PRIMARY KEY,
-  id_punto      VARCHAR(20) REFERENCES dim_punto,
-  id_municipio  VARCHAR(3)  REFERENCES dim_municipio,
-  id_tiempo     INTEGER     REFERENCES dim_tiempo,
-  ph            DECIMAL(5,3),
-  conductividad DECIMAL(8,1),
-  salinidad     DECIMAL(6,3),
-  temperatura   DECIMAL(5,2),
-  std_mg_l      DECIMAL(8,1),
-  estado        VARCHAR(15),  -- Apta | Precaución | Crítico
-  created_at    TIMESTAMPTZ DEFAULT NOW()
-);`}
-            </pre>
-          </div>
-
           <div className="card card-pad">
             <SecTitle title="Origen de los datos" sub={window.GJ_API_LIVE ? 'SUPABASE · EN VIVO' : 'COPIA ESTÁTICA'} />
             <div style={{display:'flex', flexDirection:'column', gap:10, marginTop:4}}>
@@ -477,6 +430,25 @@ function PageAdmin() {
               })()}
             </div>
           </div>
+          <div className="card card-pad">
+            <SecTitle title="Tabla de hechos · fact_medicion" sub="api/schema.sql" />
+            <pre className="mono" style={{fontSize:10.5, color:'var(--text-2)', lineHeight:1.5, margin:0, whiteSpace:'pre-wrap'}}>
+{`CREATE TABLE fact_medicion (
+  id_medicion   VARCHAR(20) PRIMARY KEY,
+  id_punto      VARCHAR(20) REFERENCES dim_punto,
+  id_municipio  VARCHAR(3)  REFERENCES dim_municipio,
+  id_tiempo     INTEGER     REFERENCES dim_tiempo,
+  ph            DECIMAL(5,3),
+  conductividad DECIMAL(8,1),
+  salinidad     DECIMAL(6,3),
+  temperatura   DECIMAL(5,2),
+  std_mg_l      DECIMAL(8,1),
+  estado        VARCHAR(15),  -- Apta | Precaución | Crítico
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);`}
+            </pre>
+          </div>
+
         </div>
       </div>
 

@@ -304,7 +304,7 @@ def crear_medicion(...):
 
 ## Limitaciones conocidas
 
-- **Series mensuales estimadas.** Los datos cubren dos campañas. La serie de 12 meses del análisis de tendencias se obtiene aplicando factores estacionales a los promedios de cada campaña; los meses intermedios no son mediciones directas.
+- **Series mensuales estimadas.** Los datos cubren dos campañas: febrero de 2026 (época seca) y octubre de 2025 (época húmeda). La serie de 12 meses del análisis de tendencias completa los meses intermedios con factores estacionales. La gráfica marca con puntos llenos los dos meses medidos y dibuja punteada la parte estimada; las cifras y los indicadores de esa página se calculan solo con los meses medidos.
 - **Registro de puntos sin persistencia.** El formulario de nuevo punto de monitoreo valida los datos pero aún no los envía a la API.
 - **Reportes.** El generador produce y descarga reportes en PDF, CSV y XLSX en el momento. No hay programación, envío por correo ni historial guardado en el servidor: la lista de reportes generados se limita a la sesión actual.
 - **Alertas reconocidas.** El reconocimiento de alertas se pierde al recargar la página.
