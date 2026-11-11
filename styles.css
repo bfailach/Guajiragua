@@ -853,3 +853,63 @@ hr.div { border: 0; border-top: 1px solid var(--border); margin: 16px 0; }
   .kpi-value { font-size: 22px; }
   .page-head h1 { font-size: 20px; }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Celular (≤ 780 px): menú compacto y textos legibles
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 780px) {
+  /* Menú: el nombre en la primera fila y las secciones en una fila que se
+     desliza horizontalmente (antes ocupaba cerca de un tercio de la pantalla) */
+  .topnav {
+    display: grid;
+    grid-template-columns: none;
+    grid-template-rows: auto auto;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    column-gap: 22px;
+    row-gap: 0;
+    height: auto;
+    padding: 8px 16px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .topnav::-webkit-scrollbar { display: none; }
+  .topnav .brand {
+    grid-row: 1;
+    grid-column: 1 / span 4;
+    order: 0;
+    justify-self: start;
+    min-height: 40px;
+    padding: 0;
+  }
+  .topnav .brand.active::after { left: 0; transform: none; bottom: 2px; width: 24px; }
+  .topnav .nav-item {
+    grid-row: 2;
+    min-height: 44px;
+    padding: 0;
+    border-bottom: none;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+  .topnav .nav-item.active { font-weight: 500; }
+  .topnav .nav-item.active::after { left: 0; transform: none; bottom: 0; width: 100%; height: 2px; }
+
+  /* Tamaño mínimo de 12 px para textos (etiquetas, notas, encabezados de tabla) */
+  .page-head .crumb, .page-head .meta, .kpi-label, .kpi-foot, .sec-title .sub,
+  .pill, .tbl th, .legend, .alert-row .stamp, .alert-row .body small,
+  .map-wrap .leaflet-tooltip, .map-wrap .tt-row, .actors .a .code, .actors .a .role,
+  .live, .seg button, .field label, .field .hint, .field .err-msg, .alert-row .resolve-btn,
+  .chip, .brand-sub {
+    font-size: 12px !important;
+  }
+  .tbl { font-size: 12.5px; }
+  .alert-row .body { font-size: 14px; }
+
+  /* Estilos en línea de los componentes con letra de 9 a 11 px */
+  [style*="font-size: 9px"], [style*="font-size: 9.5px"],
+  [style*="font-size: 10px"], [style*="font-size: 10.5px"],
+  [style*="font-size: 11px"] {
+    font-size: 12px !important;
+  }
+}

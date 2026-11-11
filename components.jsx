@@ -21,8 +21,18 @@ function TopNav({ page, setPage }) {
     { id: 'alertas',   label: 'Alertas' },
     { id: 'admin',     label: 'Administración' },
   ];
+  // En el celular el menú es una fila deslizable: mantener visible la sección activa
+  const navRef = useRef(null);
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav || nav.scrollWidth <= nav.clientWidth) return;
+    const act = nav.querySelector('.nav-item.active');
+    if (act) nav.scrollTo({ left: Math.max(0, act.offsetLeft - 16), behavior: 'smooth' });
+    else nav.scrollTo({ left: 0, behavior: 'smooth' });
+  }, [page]);
+
   return (
-    <nav className="topnav">
+    <nav className="topnav" ref={navRef} aria-label="Secciones">
       {left.map(n => (
         <button key={n.id}
           className={'nav-item' + (page === n.id ? ' active' : '')}
