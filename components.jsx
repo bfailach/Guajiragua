@@ -5,6 +5,7 @@ const { useState, useMemo, useEffect, useRef } = React;
 // ── Top Navigation ───────────────────────────────────────────────
 function TopNav({ page, setPage }) {
   const left = [
+    { id: 'inicio',    label: 'Inicio' },
     { id: 'fisico',    label: 'Información fisicoquímica' },
     { id: 'tend',      label: 'Análisis de tendencias' },
   ];

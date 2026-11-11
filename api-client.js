@@ -16,32 +16,80 @@
   window.GJ_API_BASE = API_BASE;
   window.GJ_API_LIVE = false;
 
-  /* ── Pantalla de carga ─────────────────────────────────────────────── */
+  /* ── Esqueleto de carga ─────────────────────────────────────────────
+     Silueta de la app (barra superior, encabezado y tarjetas) mientras
+     llegan los datos. Usa los mismos colores y medidas que styles.css. */
   const loader = document.createElement('div');
   loader.id = 'gj-loader';
+  loader.setAttribute('role', 'status');
+  loader.setAttribute('aria-live', 'polite');
+  loader.setAttribute('aria-label', 'Cargando Guajiragua');
+  const bar = (w, h, extra) => `<div class="gjs-b" style="width:${w};height:${h}px;${extra || ''}"></div>`;
+  const card = (inner, extra) => `<div class="gjs-card" style="${extra || ''}">${inner}</div>`;
   loader.innerHTML = `
-    <div style="
-      position:fixed;inset:0;z-index:9999;
-      background:#0f0f0f;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      font-family:'JetBrains Mono',monospace;color:#888;gap:20px;
-    ">
-      <div style="font-size:13px;letter-spacing:0.2em;color:#ccc;">GUAJIRAGUA</div>
-      <div id="gj-loader-msg" style="font-size:11px;letter-spacing:0.12em;">
-        CONECTANDO AL DWH · SUPABASE
+    <style>
+      #gj-loader { position: fixed; inset: 0; z-index: 9999; background: #f6f6f6; overflow: hidden;
+                   font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif; }
+      #gj-loader .gjs-app { max-width: 1600px; margin: 0 auto; padding: 0 56px; }
+      #gj-loader .gjs-nav { display: grid; grid-template-columns: repeat(3, 1fr) auto repeat(2, 1fr); align-items: center;
+                            height: 84px; border-bottom: 1px solid #e2e2e2; margin: 0 -56px 32px; padding: 0 56px; gap: 16px; }
+      #gj-loader .gjs-nav .gjs-b { margin: 0 auto; }
+      #gj-loader .gjs-brand { font-weight: 600; letter-spacing: 0.18em; font-size: 14px; color: #0f0f0f; padding: 0 24px; }
+      #gj-loader .gjs-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin: 8px 0 28px; }
+      #gj-loader .gjs-grid { display: grid; gap: 16px; margin-bottom: 16px; }
+      #gj-loader .gjs-g1 { grid-template-columns: 1.6fr 1fr; }
+      #gj-loader .gjs-g3 { grid-template-columns: repeat(3, 1fr); }
+      #gj-loader .gjs-card { background: #fff; border: 1px solid #e2e2e2; border-radius: 4px; padding: 20px;
+                             display: flex; flex-direction: column; gap: 14px; }
+      #gj-loader .gjs-b { border-radius: 3px; background: #ececec; max-width: 100%;
+                          background-image: linear-gradient(90deg, #ececec 0px, #f7f7f7 120px, #ececec 240px);
+                          background-size: 900px 100%; animation: gjs-shimmer 1.4s linear infinite; }
+      #gj-loader .gjs-msg { font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace; font-size: 10px;
+                            letter-spacing: 0.14em; color: #8a8a8a; text-transform: uppercase; text-align: right; }
+      @keyframes gjs-shimmer { from { background-position: -300px 0; } to { background-position: 600px 0; } }
+      @media (prefers-reduced-motion: reduce) { #gj-loader .gjs-b { animation: none; } }
+      @media (max-width: 1200px) {
+        #gj-loader .gjs-app { padding: 0 32px; }
+        #gj-loader .gjs-nav { margin: 0 -32px 24px; padding: 0 32px; }
+      }
+      @media (max-width: 780px) {
+        #gj-loader .gjs-app { padding: 0 16px; }
+        #gj-loader .gjs-nav { grid-template-columns: 1fr; height: auto; padding: 14px 16px; margin: 0 -16px 16px; gap: 12px; }
+        #gj-loader .gjs-nav .gjs-b { margin: 0; }
+        #gj-loader .gjs-nav .gjs-hide-m { display: none; }
+        #gj-loader .gjs-brand { order: -1; padding: 0; }
+        #gj-loader .gjs-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+        #gj-loader .gjs-msg { text-align: left; }
+        #gj-loader .gjs-g1, #gj-loader .gjs-g3 { grid-template-columns: 1fr; }
+      }
+    </style>
+    <div class="gjs-app" aria-hidden="true">
+      <div class="gjs-nav">
+        ${bar('48px', 10)}${bar('150px', 10, '', )}${bar('130px', 10)}
+        <div class="gjs-brand">GUAJIRAGUA</div>
+        ${bar('56px', 10)}${bar('110px', 10)}
       </div>
-      <div style="display:flex;gap:6px;margin-top:4px;">
-        ${[0,1,2].map(i =>
-          `<div style="width:6px;height:6px;border-radius:50%;background:#2c5fa6;
-            animation:gjpulse 1.2s ease-in-out ${i*0.2}s infinite alternate;"></div>`
-        ).join('')}
+      <div class="gjs-head">
+        <div style="display:flex;flex-direction:column;gap:12px;flex:1;min-width:0">
+          ${bar('260px', 9)}${bar('420px', 26)}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          ${bar('170px', 9)}${bar('140px', 9)}
+        </div>
       </div>
-      <style>
-        @keyframes gjpulse {
-          from { opacity: 0.2; transform: scale(0.8); }
-          to   { opacity: 1;   transform: scale(1.1); }
-        }
-      </style>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:-12px 0 24px;max-width:760px">
+        ${bar('100%', 12)}${bar('70%', 12)}
+      </div>
+      <div class="gjs-grid gjs-g1">
+        ${card(bar('180px', 11) + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + [64,74,58,80,70,90,66,76,84,120,60].map(w => bar(w + 'px', 26, 'border-radius:999px')).join('') + '</div>' + bar('90%', 20) + bar('40%', 9) + bar('100%', 14) + bar('100%', 12) + bar('100%', 12) + bar('100%', 12))}
+        ${card(bar('160px', 11) + bar('100%', 12) + bar('85%', 12) + bar('150px', 40))}
+      </div>
+      <div class="gjs-grid gjs-g3">
+        ${[0,1,2].map(() => card(bar('60%', 14) + bar('100%', 11) + bar('100%', 11) + bar('100%', 11) + bar('100%', 11))).join('')}
+      </div>
+    </div>
+    <div class="gjs-msg" style="position:fixed;right:16px;bottom:16px;background:#f6f6f6;padding:6px 8px;border-radius:3px">
+      <span id="gj-loader-msg">CONECTANDO AL DWH · SUPABASE</span>
     </div>`;
   document.body.appendChild(loader);
 
@@ -50,10 +98,15 @@
     if (el) el.textContent = msg;
   }
 
-  function removeLoader() {
+  // El esqueleto se retira cuando la app ya está dibujada (main.jsx llama
+  // a GJ_HIDE_LOADER), para que no quede un instante en blanco entre ambos.
+  window.GJ_HIDE_LOADER = function () {
     const el = document.getElementById('gj-loader');
-    if (el) el.remove();
-  }
+    if (!el) return;
+    el.style.transition = 'opacity .25s ease';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 260);
+  };
 
   /* ── Helpers de API (expuestos globalmente para otros módulos) ──────── */
   window.GJ_API = {
@@ -207,13 +260,11 @@
         'color:#2e8b57;font-weight:bold'
       );
 
-      removeLoader();
       return true;
 
     } catch (err) {
       console.warn('[Guajiragua] API no disponible → usando datos estáticos.', err.message);
       window.GJ_API_LIVE = false;
-      removeLoader();
       return false;
     }
   })();

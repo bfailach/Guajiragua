@@ -55,8 +55,14 @@ function AppFooter() {
 }
 
 function App() {
-  const [page, setPage] = useState('fisico');
+  const [page, setPage] = useState('inicio');
   const [ready, setReady] = useState(false);
+
+  // Al cambiar de pestaña, volver al principio de la página
+  useEffect(() => { window.scrollTo(0, 0); }, [page]);
+
+  // Retira el esqueleto de carga cuando la app ya está en pantalla
+  useEffect(() => { if (ready && window.GJ_HIDE_LOADER) window.GJ_HIDE_LOADER(); }, [ready]);
 
   useEffect(() => {
     // Espera a que el API cargue los datos (o falle y use fallback)
@@ -69,9 +75,10 @@ function App() {
     });
   }, []);
 
-  if (!ready) return null; // El loader HTML ya está visible mientras tanto
+  if (!ready) return null; // El esqueleto de carga ya está visible mientras tanto
 
   let body = null;
+  if (page === 'inicio')  body = <PageInicio setPage={setPage} />;
   if (page === 'fisico')  body = <PageFisicoquimica />;
   if (page === 'tend')    body = <PageTendencias />;
   if (page === 'alertas') body = <PageAlertas />;

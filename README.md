@@ -2,7 +2,7 @@
 
 Sistema de inteligencia de negocios para el monitoreo de la calidad del agua subterránea en el departamento de La Guajira, Colombia.
 
-Integra 1.735 mediciones fisicoquímicas de pozos, aljibes y manantiales de 11 municipios en una bodega de datos con modelo estrella. Las expone mediante una API REST y las presenta en un tablero web con mapa, tendencias estacionales, alertas por umbral y generación de reportes.
+Integra 1.735 mediciones fisicoquímicas de pozos, aljibes y manantiales de 11 municipios en una bodega de datos con modelo estrella. Las expone mediante una API REST y las presenta en un tablero web con mapa, tendencias estacionales, alertas por umbral y generación de reportes. Incluye una página de inicio con información en lenguaje sencillo para los habitantes de La Guajira.
 
 Proyecto académico del programa de Ingeniería de Negocios de la Universidad Manuela Beltrán (UMB), desarrollado con la metodología de bodegas de datos de Kimball.
 
@@ -14,17 +14,18 @@ Proyecto académico del programa de Ingeniería de Negocios de la Universidad Ma
 ## Contenido
 
 1. [Arquitectura](#arquitectura)
-2. [Datos](#datos)
-3. [Modelo dimensional](#modelo-dimensional)
-4. [Indicadores y reglas de clasificación](#indicadores-y-reglas-de-clasificación)
-5. [Estructura del repositorio](#estructura-del-repositorio)
-6. [Instalación local](#instalación-local)
-7. [Configuración](#configuración)
-8. [Despliegue](#despliegue)
-9. [API](#api)
-10. [Autenticación](#autenticación)
-11. [Limitaciones conocidas](#limitaciones-conocidas)
-12. [Capturas](#capturas)
+2. [Página de inicio](#página-de-inicio)
+3. [Datos](#datos)
+4. [Modelo dimensional](#modelo-dimensional)
+5. [Indicadores y reglas de clasificación](#indicadores-y-reglas-de-clasificación)
+6. [Estructura del repositorio](#estructura-del-repositorio)
+7. [Instalación local](#instalación-local)
+8. [Configuración](#configuración)
+9. [Despliegue](#despliegue)
+10. [API](#api)
+11. [Autenticación](#autenticación)
+12. [Limitaciones conocidas](#limitaciones-conocidas)
+13. [Capturas](#capturas)
 
 ## Arquitectura
 
@@ -48,7 +49,15 @@ Proyecto académico del programa de Ingeniería de Negocios de la Universidad Ma
 | Frontend | React 18, Leaflet, SheetJS; sin paso de compilación (JSX transpilado en el navegador) | raíz del repositorio |
 | ETL de referencia | Python, pandas | `etl/etl_guajira.py` |
 
-Al iniciar, el frontend consulta `GET /api/health` y descarga las mediciones paginadas desde `GET /api/puntos`. Si la API no responde en 35 segundos (margen para el arranque en frío del plan gratuito de Render), usa la copia estática `real-data.js` e indica el modo en el pie de página (`SUPABASE · LIVE` u `OFFLINE · DATOS ESTÁTICOS`).
+Mientras carga, la app muestra un esqueleto con la estructura de la página. Al iniciar, el frontend consulta `GET /api/health` y descarga las mediciones paginadas desde `GET /api/puntos`. Si la API no responde en 35 segundos (margen para el arranque en frío del plan gratuito de Render), usa la copia estática `real-data.js` e indica el modo en el pie de página (`SUPABASE · LIVE` u `OFFLINE · DATOS ESTÁTICOS`).
+
+## Página de inicio
+
+Es la primera pestaña. Está dirigida a los habitantes de La Guajira y usa el mismo diseño que el resto de la aplicación:
+
+- **Consulta por municipio.** Un resumen en una frase ("4 de cada 10 fuentes de Uribia no son aptas para beber") y la distribución por estado. Para cada fuente se usa su medición más reciente: 1.701 fuentes a partir de las 1.735 mediciones.
+- **Fuentes cerca de ti.** Con la ubicación del teléfono, lista las fuentes más cercanas y su estado. El detalle de cada una explica en lenguaje sencillo por qué tiene ese estado, qué hacer con el agua y los valores medidos. La ubicación se usa solo en el navegador y no se envía a ningún servidor.
+- **Qué significa cada estado y qué hacer.** Los estados se presentan como "Sin problemas detectados" (`Apta`), "Usar con cuidado" (`Precaución`) y "No apta para beber" (`Crítico`). No se usa "potable", porque las mediciones no incluyen análisis microbiológico. Por eso la página recomienda hervir el agua de cualquier fuente antes de beberla y aclara que hervir no le quita la sal.
 
 ## Datos
 
@@ -134,6 +143,7 @@ Indicadores principales:
 ├── mock-data.jsx            Catálogos, agregaciones e indicadores en el cliente
 ├── components.jsx           Componentes compartidos de la interfaz
 ├── map-guajira.jsx          Mapa por municipio (Leaflet)
+├── page-inicio.jsx          Página: inicio, información para los habitantes
 ├── page-fisicoquimica.jsx   Página: información fisicoquímica
 ├── page-tendencias.jsx      Página: análisis de tendencias
 ├── page-alertas.jsx         Página: centro de alertas

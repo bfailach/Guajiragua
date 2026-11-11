@@ -62,7 +62,7 @@ input, select, textarea { font-family: inherit; color: inherit; }
 /* Top Nav */
 .topnav {
   display: grid;
-  grid-template-columns: 1fr 1fr auto 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr) auto repeat(2, 1fr);
   align-items: center;
   height: 84px;
   border-bottom: 1px solid var(--border);
@@ -724,7 +724,7 @@ hr.div { border: 0; border-top: 1px solid var(--border); margin: 16px 0; }
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.42);
-  z-index: 999;
+  z-index: 1500;   /* por encima de la barra superior (1000) y debajo de los avisos (2000) */
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
   backdrop-filter: blur(3px);
